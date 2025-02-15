@@ -13,3 +13,11 @@ build/
 
 # DS_Store
 .DS_Store
+
+# SQLite
+*.db
+*.db-journal
+*.db-lock
+
+# Sample data
+populate_db.py
