@@ -16,6 +16,10 @@
 1. Decorators: https://flask.palletsprojects.com/en/stable/patterns/viewdecorators/
 2. Bootstrap: https://www.w3schools.com/bootstrap5/bootstrap_modal.php
 3. Flask Blueprints: https://realpython.com/flask-blueprint/#making-a-flask-blueprint
+4. HTML Inheritance: https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-a-flask-application
+5. Message Flashing: https://www.geeksforgeeks.org/flask-message-flashing/
+6. Flask Sessions: https://testdriven.io/blog/flask-sessions/
+
 
 ### Special Thanks
 
