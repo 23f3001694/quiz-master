@@ -5,6 +5,47 @@
     <h2>Welcome, {{ user.full_name }}!</h2>
     
     <div class="row mt-4">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Your Performance</h3>
+                    <a href="{{ url_for('user.quiz_summary') }}" class="btn btn-light">View Detailed Summary</a>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h4>Total Quizzes Attempted</h4>
+                            <h2 class="display-4">{{ user.scores|length }}</h2>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>Latest Score</h4>
+                            {% if user.scores %}
+                            {% set latest_score = user.scores|sort(attribute='id')|last %}
+                            <h2 class="display-4">{{ latest_score.total_score }}/{{ latest_score.quiz.questions|length }}</h2>
+                            {% else %}
+                            <h2 class="display-4">-</h2>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <h4>Average Score</h4>
+                            {% if user.scores %}
+                            {% set total = namespace(value=0) %}
+                            {% set count = namespace(value=0) %}
+                            {% for score in user.scores %}
+                            {% set total.value = total.value + (score.total_score / score.quiz.questions|length * 100) %}
+                            {% set count.value = count.value + 1 %}
+                            {% endfor %}
+                            <h2 class="display-4">{{ "%.1f"|format(total.value / count.value) }}%</h2>
+                            {% else %}
+                            <h2 class="display-4">-</h2>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
         <div class="col-12">
             <h3>Available Subjects</h3>
             <div class="row">

@@ -26,7 +26,11 @@
                     {% for quiz in chapter.quizzes %}
                     <a href="{{ url_for('user.quiz_detail', quiz_id=quiz.id) }}" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">Quiz #{{ quiz.id }}</h6>
+                            <h6 class="mb-1">Quiz #{{ quiz.id }}
+                                {% if quiz.id in attempted_quiz_ids %}
+                                <span class="badge bg-success">Attempted</span>
+                                {% endif %}
+                            </h6>
                             <small>Duration: {{ quiz.time_duration }}</small>
                         </div>
                         <div class="d-flex w-100 justify-content-between">

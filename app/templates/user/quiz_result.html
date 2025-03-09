@@ -17,14 +17,14 @@
         <div class="card-body">
             <div class="text-center mb-4">
                 <h3>Your Score</h3>
-                <h1 class="display-4">{{ score.total_score }} / {{ quiz.questions|length }}</h1>
+                <h1 class="display-4">{{ score.total_score }} / {{ score.max_score }}</h1>
                 <p class="lead">
-                    Percentage: {{ (score.total_score / quiz.questions|length * 100)|round(2) }}%
+                    Percentage: {{ (score.total_score / score.max_score * 100)|round(1) }}%
                 </p>
             </div>
 
-            <div class="alert {% if score.total_score / quiz.questions|length >= 0.7 %}alert-success{% else %}alert-warning{% endif %}">
-                {% if score.total_score / quiz.questions|length >= 0.7 %}
+            <div class="alert {% if (score.total_score / score.max_score) >= 0.7 %}alert-success{% else %}alert-warning{% endif %}">
+                {% if (score.total_score / score.max_score) >= 0.7 %}
                     <h4 class="alert-heading">Congratulations! 🎉</h4>
                     <p>You've done well on this quiz! Keep up the good work!</p>
                 {% else %}

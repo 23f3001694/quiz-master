@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Quiz Summary</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Overall Performance</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4>Total Quizzes</h4>
+                            <h2 class="display-4">{{ total_quizzes }}</h2>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>Average Score</h4>
+                            <h2 class="display-4">{{ "%.1f"|format(average_score) }}%</h2>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>Best Score</h4>
+                            <h2 class="display-4 text-success">{{ "%.1f"|format(best_score) }}%</h2>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>Lowest Score</h4>
+                            <h2 class="display-4 text-warning">{{ "%.1f"|format(worst_score) }}%</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% for subject_name, scores in subject_scores.items() %}
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ subject_name }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Quiz Date</th>
+                                    <th>Chapter</th>
+                                    <th>Score</th>
+                                    <th>Percentage</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score_data in scores %}
+                                <tr>
+                                    <td>{{ score_data.score.quiz.date_of_quiz.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ score_data.score.quiz.chapter.name }}</td>
+                                    <td>{{ score_data.score.total_score }} / {{ score_data.score.max_score }}</td>
+                                    <td>{{ "%.1f"|format(score_data.percentage) }}%</td>
+                                    <td>
+                                        {% if score_data.percentage >= 70 %}
+                                        <span class="badge bg-success">Passed</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Needs Improvement</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('user.quiz_result', quiz_id=score_data.score.quiz_id, score_id=score_data.score.id) }}" 
+                                           class="btn btn-sm btn-info">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not subject_scores %}
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <p class="mb-0">You haven't attempted any quizzes yet.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

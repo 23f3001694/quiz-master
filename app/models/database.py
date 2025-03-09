@@ -63,6 +63,7 @@ class Score(db.Model):
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     total_score = db.Column(db.Integer, nullable=False)
+    max_score = db.Column(db.Integer, nullable=False)
 
 if __name__ == '__main__':
     with app.app_context():

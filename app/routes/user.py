@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
+from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, flash
 from app.models.database import User, Subject, Chapter, Quiz, Question, Score, db
 from functools import wraps
 from datetime import datetime
@@ -24,7 +24,11 @@ def dashboard():
 @user_required
 def view_subject(subject_id):
     subject = Subject.query.get_or_404(subject_id)
-    return render_template('user/subject_detail.html', subject=subject)
+    user_scores = Score.query.filter_by(user_id=session['user_id']).all()
+    attempted_quiz_ids = {score.quiz_id for score in user_scores}
+    return render_template('user/subject_detail.html', 
+                         subject=subject, 
+                         attempted_quiz_ids=attempted_quiz_ids)
 
 @user.route('/quiz/<int:quiz_id>')
 @user_required
@@ -38,6 +42,11 @@ def quiz_detail(quiz_id):
 def attempt_quiz(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
     
+    existing_score = Score.query.filter_by(user_id=session['user_id'], quiz_id=quiz_id).first()
+    if existing_score:
+        flash('You have already attempted this quiz.')
+        return redirect(url_for('user.quiz_detail', quiz_id=quiz_id))
+    
     if request.method == 'POST':
         score = 0
         total_questions = len(quiz.questions)
@@ -50,7 +59,8 @@ def attempt_quiz(quiz_id):
         new_score = Score(
             quiz_id=quiz_id,
             user_id=session['user_id'],
-            total_score=score
+            total_score=score,
+            max_score=total_questions
         )
         db.session.add(new_score)
         db.session.commit()
@@ -65,3 +75,36 @@ def quiz_result(quiz_id, score_id):
     quiz = Quiz.query.get_or_404(quiz_id)
     score = Score.query.get_or_404(score_id)
     return render_template('user/quiz_result.html', quiz=quiz, score=score) 
+
+@user.route('/quiz-summary')
+@user_required
+def quiz_summary():
+    user_scores = Score.query.filter_by(user_id=session['user_id']).all()
+    
+    total_quizzes = len(user_scores)
+    if total_quizzes > 0:
+        score_percentages = [(score.total_score / score.max_score * 100) for score in user_scores]
+        average_score = sum(score_percentages) / len(score_percentages)
+        best_score = max(score_percentages)
+        worst_score = min(score_percentages)
+    else:
+        average_score = best_score = worst_score = 0
+    
+    subject_scores = {}
+    for score in user_scores:
+        subject = score.quiz.chapter.subject
+        if subject.name not in subject_scores:
+            subject_scores[subject.name] = []
+        percentage = (score.total_score / score.max_score * 100)
+        subject_scores[subject.name].append({
+            'score': score,
+            'percentage': percentage
+        })
+    
+    return render_template('user/quiz_summary.html', 
+                         user_scores=user_scores,
+                         total_quizzes=total_quizzes,
+                         average_score=round(average_score, 1),
+                         best_score=round(best_score, 1),
+                         worst_score=round(worst_score, 1),
+                         subject_scores=subject_scores) 
