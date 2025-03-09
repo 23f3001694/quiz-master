@@ -18,7 +18,7 @@ def admin_required(f):
 def dashboard():
     subjects = Subject.query.all()
     users = User.query.all()
-    return render_template('admin_dashboard.html', subjects=subjects, users=users)
+    return render_template('admin/dashboard.html', subjects=subjects, users=users)
 
 @admin.route('/subjects', methods=['GET', 'POST'])
 @admin_required

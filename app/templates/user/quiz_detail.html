@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('user.view_subject', subject_id=quiz.chapter.subject.id) }}">{{ quiz.chapter.subject.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Quiz #{{ quiz.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Quiz Details</h2>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Chapter: {{ quiz.chapter.name }}</h5>
+            <p class="card-text">
+                <strong>Duration:</strong> {{ quiz.time_duration }}<br>
+                <strong>Date:</strong> {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}<br>
+                <strong>Total Questions:</strong> {{ quiz.questions|length }}
+            </p>
+
+            {% if existing_score %}
+            <div class="alert alert-info">
+                <h5>Previous Attempt</h5>
+                <p>Score: {{ existing_score.total_score }} out of {{ quiz.questions|length }}</p>
+            </div>
+            {% endif %}
+
+            <div class="mt-4">
+                {% if not existing_score %}
+                <a href="{{ url_for('user.attempt_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Start Quiz</a>
+                {% else %}
+                <button class="btn btn-secondary" disabled>Already Attempted</button>
+                {% endif %}
+                <a href="{{ url_for('user.view_subject', subject_id=quiz.chapter.subject.id) }}" class="btn btn-outline-secondary">Back to Subject</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

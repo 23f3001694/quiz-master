@@ -23,6 +23,7 @@ def login():
             user = User.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
+            session['email'] = user.email
             session['user_id'] = user.id
             session['user_type'] = user_type
             if user_type == 'admin':
@@ -37,17 +38,22 @@ def register():
     if request.method == 'POST':
         try:
             username = request.form['username']
+            email = request.form['email']
             password = request.form['password']
             full_name = request.form['full_name']
             qualification = request.form['qualification']
             dob_str = request.form['dob']
 
-            if not is_valid_email(username):
+            if not is_valid_email(email):
                 flash('Please enter a valid email address')
                 return render_template('register.html')
 
-            if User.query.filter_by(username=username).first():
+            if User.query.filter_by(email=email).first():
                 flash('Email already registered')
+                return render_template('register.html')
+            
+            if User.query.filter_by(username=username).first():
+                flash('Username already registered')
                 return render_template('register.html')
 
             try:
@@ -59,6 +65,7 @@ def register():
             hashed_password = generate_password_hash(password)
             new_user = User(
                 username=username,
+                email=email,
                 password=hashed_password,
                 full_name=full_name,
                 qualification=qualification,

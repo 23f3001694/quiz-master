@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Quiz #{{ quiz.id }}</h2>
+            <h4>{{ quiz.chapter.name }}</h4>
+        </div>
+        <div class="col-md-4 text-right">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Time Remaining</h5>
+                    <h3 id="timer" class="text-center text-danger">Loading...</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="quizForm" method="POST" class="mt-4">
+        {% for question in quiz.questions %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Question {{ loop.index }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ question.question_statement }}</p>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="1" required>
+                    <label class="form-check-label">{{ question.option1 }}</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="2">
+                    <label class="form-check-label">{{ question.option2 }}</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="3">
+                    <label class="form-check-label">{{ question.option3 }}</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="4">
+                    <label class="form-check-label">{{ question.option4 }}</label>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="text-center mb-4">
+            <button type="submit" class="btn btn-primary btn-lg">Submit Quiz</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const duration = "{{ quiz.time_duration }}";
+    let totalSeconds = 0;
+    
+    if (duration.includes('mins')) {
+        totalSeconds = parseInt(duration) * 60;
+    } else if (duration.includes('hour')) {
+        totalSeconds = parseInt(duration) * 3600;
+    }
+
+    let timeLeft = totalSeconds;
+    const timerElement = document.getElementById('timer');
+    const quizForm = document.getElementById('quizForm');
+
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert('Time is up! Your quiz will be submitted automatically.');
+            quizForm.submit();
+        }
+        timeLeft--;
+    }
+
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+</script>
+{% endblock %} 

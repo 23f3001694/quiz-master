@@ -22,3 +22,5 @@ build/
 # Sample data
 populate_db.py
 
+venv/
+.ropeproject/

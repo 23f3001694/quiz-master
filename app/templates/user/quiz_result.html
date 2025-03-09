@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('user.view_subject', subject_id=quiz.chapter.subject.id) }}">{{ quiz.chapter.subject.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Quiz Results</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Quiz Results</h2>
+        </div>
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <h3>Your Score</h3>
+                <h1 class="display-4">{{ score.total_score }} / {{ quiz.questions|length }}</h1>
+                <p class="lead">
+                    Percentage: {{ (score.total_score / quiz.questions|length * 100)|round(2) }}%
+                </p>
+            </div>
+
+            <div class="alert {% if score.total_score / quiz.questions|length >= 0.7 %}alert-success{% else %}alert-warning{% endif %}">
+                {% if score.total_score / quiz.questions|length >= 0.7 %}
+                    <h4 class="alert-heading">Congratulations! 🎉</h4>
+                    <p>You've done well on this quiz! Keep up the good work!</p>
+                {% else %}
+                    <h4 class="alert-heading">Room for Improvement</h4>
+                    <p>Don't worry! Review the material and try again with a different quiz.</p>
+                {% endif %}
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('user.view_subject', subject_id=quiz.chapter.subject.id) }}" class="btn btn-primary">Back to Subject</a>
+                <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
