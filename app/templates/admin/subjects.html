@@ -10,9 +10,9 @@
     </nav>
     <div>
         <h2>Manage Subjects</h2>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+        <a href="{{ url_for('admin.add_subject') }}" class="btn btn-primary">
             Add New Subject
-        </button>
+        </a>
     </div>
 
     {% with messages = get_flashed_messages() %}
@@ -33,68 +33,14 @@
                     <div>
                         <a href="{{ url_for('admin.manage_chapters', subject_id=subject.id) }}" class="btn btn-info">View Chapters</a>
                         <div>
-                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editSubjectModal{{ subject.id }}">Edit</button>
+                            <a href="{{ url_for('admin.edit_subject', id=subject.id) }}" class="btn btn-warning">Edit</a>
                             <a href="{{ url_for('admin.delete_subject', id=subject.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this subject?')">Delete</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="modal fade" id="editSubjectModal{{ subject.id }}">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Edit Subject</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <form action="{{ url_for('admin.edit_subject', id=subject.id) }}" method="post">
-                        <div class="modal-body">
-                            <div>
-                                <label for="name" class="form-label">Subject Name</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ subject.name }}" required>
-                            </div>
-                            <div>
-                                <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="3">{{ subject.description }}</textarea>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
         {% endfor %}
-    </div>
-
-    <div class="modal fade" id="addSubjectModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Subject</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ url_for('admin.manage_subjects') }}" method="post">
-                    <div class="modal-body">
-                        <div>
-                            <label for="name" class="form-label">Subject Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
-                        </div>
-                        <div>
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Add Subject</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %} 

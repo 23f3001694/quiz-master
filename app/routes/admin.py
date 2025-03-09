@@ -1,18 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app.models.database import db, Subject, Chapter, Quiz, Question, User
 from datetime import datetime
-from functools import wraps
+from app.utils.helpers import admin_required, search_users, search_subjects, search_chapters, search_quizzes, search_questions
 from sqlalchemy import or_
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
-
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session or session.get('user_type') != 'admin':
-            return redirect(url_for('auth.login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 @admin.route('/dashboard')
 @admin_required
@@ -21,9 +13,15 @@ def dashboard():
     users = User.query.all()
     return render_template('admin/dashboard.html', subjects=subjects, users=users)
 
-@admin.route('/subjects', methods=['GET', 'POST'])
+@admin.route('/subjects', methods=['GET'])
 @admin_required
 def manage_subjects():
+    subjects = Subject.query.all()
+    return render_template('admin/subjects.html', subjects=subjects)
+
+@admin.route('/subjects/add', methods=['GET', 'POST'])
+@admin_required
+def add_subject():
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
@@ -33,12 +31,12 @@ def manage_subjects():
             db.session.add(subject)
             db.session.commit()
             flash('Subject created successfully!')
+            return redirect(url_for('admin.manage_subjects'))
         except:
             db.session.rollback()
             flash('Error creating subject. Please try again.')
-        
-    subjects = Subject.query.all()
-    return render_template('admin/subjects.html', subjects=subjects)
+    
+    return render_template('admin/add_subject.html')
 
 @admin.route('/subjects/<int:id>/edit', methods=['GET', 'POST'])
 @admin_required
@@ -71,9 +69,16 @@ def delete_subject(id):
     
     return redirect(url_for('admin.manage_subjects'))
 
-@admin.route('/subjects/<int:subject_id>/chapters', methods=['GET', 'POST'])
+@admin.route('/subjects/<int:subject_id>/chapters', methods=['GET'])
 @admin_required
 def manage_chapters(subject_id):
+    subject = Subject.query.get_or_404(subject_id)
+    chapters = Chapter.query.filter_by(subject_id=subject_id).all()
+    return render_template('admin/chapters.html', subject=subject, chapters=chapters)
+
+@admin.route('/subjects/<int:subject_id>/chapters/add', methods=['GET', 'POST'])
+@admin_required
+def add_chapter(subject_id):
     subject = Subject.query.get_or_404(subject_id)
     if request.method == 'POST':
         name = request.form['name']
@@ -84,12 +89,12 @@ def manage_chapters(subject_id):
             db.session.add(chapter)
             db.session.commit()
             flash('Chapter created successfully!')
+            return redirect(url_for('admin.manage_chapters', subject_id=subject_id))
         except:
             db.session.rollback()
             flash('Error creating chapter. Please try again.')
     
-    chapters = Chapter.query.filter_by(subject_id=subject_id).all()
-    return render_template('admin/chapters.html', subject=subject, chapters=chapters)
+    return render_template('admin/add_chapter.html', subject=subject)
 
 @admin.route('/chapters/<int:id>/edit', methods=['GET', 'POST'])
 @admin_required
@@ -106,7 +111,9 @@ def edit_chapter(id):
             db.session.rollback()
             flash('Error updating chapter. Please try again.')
     
-    return render_template('admin/edit_chapter.html', chapter=chapter)
+    # Ensure quizzes are loaded
+    quizzes = Quiz.query.filter_by(chapter_id=chapter.id).all()
+    return render_template('admin/edit_chapter.html', chapter=chapter, quizzes=quizzes)
 
 @admin.route('/chapters/<int:id>/delete')
 @admin_required
@@ -123,25 +130,46 @@ def delete_chapter(id):
     
     return redirect(url_for('admin.manage_chapters', subject_id=subject_id))
 
-@admin.route('/chapters/<int:chapter_id>/quizzes', methods=['GET', 'POST'])
+@admin.route('/chapters/<int:chapter_id>/quizzes', methods=['GET'])
 @admin_required
 def manage_quizzes(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+    return render_template('admin/quizzes.html', chapter=chapter, quizzes=quizzes)
+
+@admin.route('/chapters/<int:chapter_id>/quizzes/add', methods=['GET', 'POST'])
+@admin_required
+def add_quiz(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
     if request.method == 'POST':
         date_of_quiz = datetime.strptime(request.form['date_of_quiz'], '%Y-%m-%d')
         time_duration = request.form['time_duration']
         
-        quiz = Quiz(chapter_id=chapter_id, date_of_quiz=date_of_quiz, time_duration=time_duration)
+        # Parse start and end times
+        start_time_str = request.form['start_time']
+        end_time_str = request.form['end_time']
+        
+        # Convert string times to Time objects
+        start_time = datetime.strptime(start_time_str, '%H:%M').time()
+        end_time = datetime.strptime(end_time_str, '%H:%M').time()
+        
+        quiz = Quiz(
+            chapter_id=chapter_id, 
+            date_of_quiz=date_of_quiz, 
+            time_duration=time_duration,
+            start_time=start_time,
+            end_time=end_time
+        )
         try:
             db.session.add(quiz)
             db.session.commit()
             flash('Quiz created successfully!')
+            return redirect(url_for('admin.manage_quizzes', chapter_id=chapter_id))
         except:
             db.session.rollback()
             flash('Error creating quiz. Please try again.')
     
-    quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
-    return render_template('admin/quizzes.html', chapter=chapter, quizzes=quizzes)
+    return render_template('admin/add_quiz.html', chapter=chapter)
 
 @admin.route('/quizzes/<int:id>/edit', methods=['GET', 'POST'])
 @admin_required
@@ -150,6 +178,15 @@ def edit_quiz(id):
     if request.method == 'POST':
         quiz.date_of_quiz = datetime.strptime(request.form['date_of_quiz'], '%Y-%m-%d')
         quiz.time_duration = request.form['time_duration']
+        
+        # Parse start and end times
+        start_time_str = request.form['start_time']
+        end_time_str = request.form['end_time']
+        
+        # Convert string times to Time objects
+        quiz.start_time = datetime.strptime(start_time_str, '%H:%M').time()
+        quiz.end_time = datetime.strptime(end_time_str, '%H:%M').time()
+        
         try:
             db.session.commit()
             flash('Quiz updated successfully!')
@@ -175,9 +212,16 @@ def delete_quiz(id):
     
     return redirect(url_for('admin.manage_quizzes', chapter_id=chapter_id))
 
-@admin.route('/quizzes/<int:quiz_id>/questions', methods=['GET', 'POST'])
+@admin.route('/quizzes/<int:quiz_id>/questions', methods=['GET'])
 @admin_required
 def manage_questions(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+    return render_template('admin/questions.html', quiz=quiz, questions=questions)
+
+@admin.route('/quizzes/<int:quiz_id>/questions/add', methods=['GET', 'POST'])
+@admin_required
+def add_question(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
     if request.method == 'POST':
         question = Question(
@@ -193,12 +237,12 @@ def manage_questions(quiz_id):
             db.session.add(question)
             db.session.commit()
             flash('Question created successfully!')
+            return redirect(url_for('admin.manage_questions', quiz_id=quiz_id))
         except:
             db.session.rollback()
             flash('Error creating question. Please try again.')
     
-    questions = Question.query.filter_by(quiz_id=quiz_id).all()
-    return render_template('admin/questions.html', quiz=quiz, questions=questions)
+    return render_template('admin/add_question.html', quiz=quiz)
 
 @admin.route('/questions/<int:id>/edit', methods=['GET', 'POST'])
 @admin_required
@@ -255,13 +299,7 @@ def search():
     results = {}
     
     if search_type in ['all', 'users']:
-        users = User.query.filter(
-            or_(
-                User.username.ilike(f'%{query}%'),
-                User.email.ilike(f'%{query}%'),
-                User.full_name.ilike(f'%{query}%')
-            )
-        ).all()
+        users = search_users(query)
         results['users'] = [{
             'id': user.id,
             'username': user.username,
@@ -270,44 +308,44 @@ def search():
         } for user in users]
     
     if search_type in ['all', 'subjects']:
-        subjects = Subject.query.filter(
-            or_(
-                Subject.name.ilike(f'%{query}%'),
-                Subject.description.ilike(f'%{query}%')
-            )
-        ).all()
+        subjects = search_subjects(query)
         results['subjects'] = [{
             'id': subject.id,
             'name': subject.name,
             'description': subject.description
         } for subject in subjects]
     
+    if search_type in ['all', 'chapters']:
+        chapters = search_chapters(query)
+        results['chapters'] = [{
+            'id': chapter.id,
+            'name': chapter.name,
+            'subject_name': chapter.subject.name,
+            'subject_id': chapter.subject_id
+        } for chapter in chapters]
+    
     if search_type in ['all', 'quizzes']:
-        quizzes = Quiz.query.join(Chapter).filter(
-            or_(
-                Chapter.name.ilike(f'%{query}%'),
-                Quiz.time_duration.ilike(f'%{query}%')
-            )
-        ).all()
+        quizzes = search_quizzes(query)
         results['quizzes'] = [{
             'id': quiz.id,
             'chapter': quiz.chapter.name,
-            'date': quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M:%S'),
+            'chapter_id': quiz.chapter_id,
+            'date': quiz.date_of_quiz.strftime('%Y-%m-%d'),
+            'start_time': quiz.start_time.strftime('%H:%M'),
+            'end_time': quiz.end_time.strftime('%H:%M'),
             'duration': quiz.time_duration
         } for quiz in quizzes]
     
     if search_type in ['all', 'questions']:
-        questions = Question.query.filter(
-            Question.question_statement.ilike(f'%{query}%')
-        ).all()
+        questions = search_questions(query)
         results['questions'] = [{
             'id': question.id,
             'quiz_id': question.quiz_id,
-            'statement': question.question_statement
+            'statement': question.question_statement[:50] + '...' if len(question.question_statement) > 50 else question.question_statement
         } for question in questions]
     
     if not any(results.values()):
         flash('No results found for your search', 'info')
         return redirect(request.referrer or url_for('admin.dashboard'))
-        
+    
     return render_template('admin/search_results.html', results=results, query=query)

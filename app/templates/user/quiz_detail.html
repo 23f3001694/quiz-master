@@ -19,6 +19,7 @@
             <p class="card-text">
                 <strong>Duration:</strong> {{ quiz.time_duration }}<br>
                 <strong>Date:</strong> {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}<br>
+                <strong>Available Time:</strong> {{ quiz.start_time.strftime('%H:%M') }} - {{ quiz.end_time.strftime('%H:%M') }}<br>
                 <strong>Total Questions:</strong> {{ quiz.questions|length }}
             </p>
 
@@ -29,9 +30,20 @@
             </div>
             {% endif %}
 
+            {% if not is_quiz_available %}
+            <div class="alert alert-warning">
+                <h5>Quiz Not Available</h5>
+                <p>This quiz is only available on {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }} between {{ quiz.start_time.strftime('%H:%M') }} and {{ quiz.end_time.strftime('%H:%M') }}.</p>
+            </div>
+            {% endif %}
+
             <div class="mt-4">
                 {% if not existing_score %}
-                <a href="{{ url_for('user.attempt_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Start Quiz</a>
+                    {% if is_quiz_available %}
+                    <a href="{{ url_for('user.attempt_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Start Quiz</a>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled>Not Available</button>
+                    {% endif %}
                 {% else %}
                 <button class="btn btn-secondary" disabled>Already Attempted</button>
                 {% endif %}

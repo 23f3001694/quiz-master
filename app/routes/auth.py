@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from werkzeug.security import check_password_hash, generate_password_hash
 from app.models.database import db, User, Admin
-from app.utils.helpers import is_valid_email
+from app.utils.helpers import is_valid_email, hash_password, check_password
 from datetime import datetime
 
 auth = Blueprint('auth', __name__)
@@ -22,7 +21,7 @@ def login():
         else:
             user = User.query.filter_by(username=username).first()
 
-        if user and check_password_hash(user.password, password):
+        if user and check_password(user.password, password):
             session['user_id'] = user.id
             session['user_type'] = user_type
             if hasattr(user, 'email'):
@@ -64,7 +63,7 @@ def register():
                 flash('Invalid date format')
                 return render_template('register.html')
 
-            hashed_password = generate_password_hash(password)
+            hashed_password = hash_password(password)
             new_user = User(
                 username=username,
                 email=email,

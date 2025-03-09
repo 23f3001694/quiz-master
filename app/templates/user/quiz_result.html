@@ -19,12 +19,12 @@
                 <h3>Your Score</h3>
                 <h1 class="display-4">{{ score.total_score }} / {{ score.max_score }}</h1>
                 <p class="lead">
-                    Percentage: {{ (score.total_score / score.max_score * 100)|round(1) }}%
+                    Percentage: {{ percentage|round(1) }}%
                 </p>
             </div>
 
-            <div class="alert {% if (score.total_score / score.max_score) >= 0.7 %}alert-success{% else %}alert-warning{% endif %}">
-                {% if (score.total_score / score.max_score) >= 0.7 %}
+            <div class="alert {% if percentage >= 70 %}alert-success{% else %}alert-warning{% endif %}">
+                {% if percentage >= 70 %}
                     <h4 class="alert-heading">Congratulations! 🎉</h4>
                     <p>You've done well on this quiz! Keep up the good work!</p>
                 {% else %}

@@ -1,18 +1,10 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, flash
 from app.models.database import User, Subject, Chapter, Quiz, Question, Score, db
-from functools import wraps
+from app.utils.helpers import user_required, is_quiz_available, search_subjects, search_quizzes, format_datetime, calculate_score_statistics, get_subject_scores, calculate_percentage
 from datetime import datetime
 from sqlalchemy import or_
 
 user = Blueprint('user', __name__, url_prefix='/user')
-
-def user_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session or session.get('user_type') != 'user':
-            return redirect(url_for('auth.login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 @user.route('/dashboard')
 @user_required
@@ -36,12 +28,24 @@ def view_subject(subject_id):
 def quiz_detail(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
     existing_score = Score.query.filter_by(user_id=session['user_id'], quiz_id=quiz_id).first()
-    return render_template('user/quiz_detail.html', quiz=quiz, existing_score=existing_score)
+    
+    # Check if the quiz is within the valid timeframe
+    is_available = is_quiz_available(quiz)
+    
+    return render_template('user/quiz_detail.html', 
+                         quiz=quiz, 
+                         existing_score=existing_score,
+                         is_available=is_available)
 
 @user.route('/quiz/<int:quiz_id>/attempt', methods=['GET', 'POST'])
 @user_required
 def attempt_quiz(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
+    
+    # Check if the quiz is within the valid timeframe
+    if not is_quiz_available(quiz):
+        flash('This quiz is not available at this time.', 'danger')
+        return redirect(url_for('user.quiz_detail', quiz_id=quiz_id))
     
     existing_score = Score.query.filter_by(user_id=session['user_id'], quiz_id=quiz_id).first()
     if existing_score:
@@ -75,39 +79,23 @@ def attempt_quiz(quiz_id):
 def quiz_result(quiz_id, score_id):
     quiz = Quiz.query.get_or_404(quiz_id)
     score = Score.query.get_or_404(score_id)
-    return render_template('user/quiz_result.html', quiz=quiz, score=score) 
+    percentage = calculate_percentage(score.total_score, score.max_score)
+    return render_template('user/quiz_result.html', quiz=quiz, score=score, percentage=percentage) 
 
 @user.route('/quiz-summary')
 @user_required
 def quiz_summary():
     user_scores = Score.query.filter_by(user_id=session['user_id']).all()
     
-    total_quizzes = len(user_scores)
-    if total_quizzes > 0:
-        score_percentages = [(score.total_score / score.max_score * 100) for score in user_scores]
-        average_score = sum(score_percentages) / len(score_percentages)
-        best_score = max(score_percentages)
-        worst_score = min(score_percentages)
-    else:
-        average_score = best_score = worst_score = 0
-    
-    subject_scores = {}
-    for score in user_scores:
-        subject = score.quiz.chapter.subject
-        if subject.name not in subject_scores:
-            subject_scores[subject.name] = []
-        percentage = (score.total_score / score.max_score * 100)
-        subject_scores[subject.name].append({
-            'score': score,
-            'percentage': percentage
-        })
+    stats = calculate_score_statistics(user_scores)
+    subject_scores = get_subject_scores(user_scores)
     
     return render_template('user/quiz_summary.html', 
                          user_scores=user_scores,
-                         total_quizzes=total_quizzes,
-                         average_score=round(average_score, 1),
-                         best_score=round(best_score, 1),
-                         worst_score=round(worst_score, 1),
+                         total_quizzes=stats['total_quizzes'],
+                         average_score=stats['average_score'],
+                         best_score=stats['best_score'],
+                         worst_score=stats['worst_score'],
                          subject_scores=subject_scores) 
 
 @user.route('/search', methods=['GET'])
@@ -123,12 +111,7 @@ def search():
     results = {}
     
     if search_type in ['all', 'subjects']:
-        subjects = Subject.query.filter(
-            or_(
-                Subject.name.ilike(f'%{query}%'),
-                Subject.description.ilike(f'%{query}%')
-            )
-        ).all()
+        subjects = search_subjects(query)
         results['subjects'] = [{
             'id': subject.id,
             'name': subject.name,
@@ -136,21 +119,18 @@ def search():
         } for subject in subjects]
     
     if search_type in ['all', 'quizzes']:
-        quizzes = Quiz.query.join(Chapter).filter(
-            or_(
-                Chapter.name.ilike(f'%{query}%'),
-                Quiz.time_duration.ilike(f'%{query}%')
-            )
-        ).all()
+        quizzes = search_quizzes(query)
         results['quizzes'] = [{
             'id': quiz.id,
             'chapter': quiz.chapter.name,
-            'date': quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M:%S'),
-            'duration': quiz.time_duration
+            'chapter_id': quiz.chapter_id,
+            'date': format_datetime(quiz.date_of_quiz),
+            'duration': quiz.time_duration,
+            'is_available': is_quiz_available(quiz)
         } for quiz in quizzes]
     
     if not any(results.values()):
         flash('No results found for your search', 'info')
         return redirect(request.referrer or url_for('user.dashboard'))
-        
+    
     return render_template('user/search_results.html', results=results, query=query) 

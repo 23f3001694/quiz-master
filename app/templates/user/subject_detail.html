@@ -30,11 +30,25 @@
                                 {% if quiz.id in attempted_quiz_ids %}
                                 <span class="badge bg-success">Attempted</span>
                                 {% endif %}
+                                
+                                {% set current_datetime = now() %}
+                                {% set quiz_date = quiz.date_of_quiz.date() %}
+                                {% set current_date = current_datetime.date() %}
+                                {% set current_time = current_datetime.time() %}
+                                
+                                {% if quiz_date == current_date and quiz.start_time <= current_time <= quiz.end_time %}
+                                <span class="badge bg-primary">Available Now</span>
+                                {% elif quiz_date > current_date or (quiz_date == current_date and quiz.start_time > current_time) %}
+                                <span class="badge bg-warning">Upcoming</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Closed</span>
+                                {% endif %}
                             </h6>
                             <small>Duration: {{ quiz.time_duration }}</small>
                         </div>
                         <div class="d-flex w-100 justify-content-between">
                             <small>Date: {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</small>
+                            <small>Time: {{ quiz.start_time.strftime('%H:%M') }} - {{ quiz.end_time.strftime('%H:%M') }}</small>
                             <small>Questions: {{ quiz.questions|length }}</small>
                         </div>
                     </a>

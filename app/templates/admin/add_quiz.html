@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Quiz - Admin - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">Subjects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_chapters', subject_id=chapter.subject_id) }}">{{ chapter.subject.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_quizzes', chapter_id=chapter.id) }}">{{ chapter.name }}</a></li>
+            <li class="breadcrumb-item active">Add New Quiz</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">Add New Quiz to {{ chapter.name }}</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.manage_quizzes', chapter_id=chapter.id) }}">
+                <div class="mb-3">
+                    <label for="date_of_quiz" class="form-label">Quiz Date</label>
+                    <input type="date" class="form-control" id="date_of_quiz" name="date_of_quiz" required>
+                </div>
+                <div class="mb-3">
+                    <label for="start_time" class="form-label">Start Time (HH:MM)</label>
+                    <input type="time" class="form-control" id="start_time" name="start_time" required>
+                </div>
+                <div class="mb-3">
+                    <label for="end_time" class="form-label">End Time (HH:MM)</label>
+                    <input type="time" class="form-control" id="end_time" name="end_time" required>
+                </div>
+                <div class="mb-3">
+                    <label for="time_duration" class="form-label">Duration (minutes)</label>
+                    <input type="text" class="form-control" id="time_duration" name="time_duration" required>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">Add Quiz</button>
+                    <a href="{{ url_for('admin.manage_quizzes', chapter_id=chapter.id) }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

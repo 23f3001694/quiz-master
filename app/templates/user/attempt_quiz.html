@@ -53,33 +53,43 @@
 </div>
 
 <script>
-    const duration = "{{ quiz.time_duration }}";
-    let totalSeconds = 0;
-    
-    if (duration.includes('mins')) {
-        totalSeconds = parseInt(duration) * 60;
-    } else if (duration.includes('hour')) {
-        totalSeconds = parseInt(duration) * 3600;
-    }
-
-    let timeLeft = totalSeconds;
-    const timerElement = document.getElementById('timer');
-    const quizForm = document.getElementById('quizForm');
-
-    function updateTimer() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get quiz end time from server
+        const quizEndTime = new Date('{{ quiz.date_of_quiz.strftime("%Y-%m-%d") }}T{{ quiz.end_time.strftime("%H:%M") }}:00');
         
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            alert('Time is up! Your quiz will be submitted automatically.');
-            quizForm.submit();
+        // Update timer every second
+        const timerElement = document.getElementById('timer');
+        const quizForm = document.getElementById('quizForm');
+        
+        function updateTimer() {
+            const now = new Date();
+            const timeDiff = quizEndTime - now;
+            
+            if (timeDiff <= 0) {
+                // Time's up, submit the form
+                timerElement.textContent = "Time's up!";
+                quizForm.submit();
+                return;
+            }
+            
+            // Calculate hours, minutes, seconds
+            const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+            
+            // Display the time
+            timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color if less than 5 minutes
+            if (timeDiff < 5 * 60 * 1000) {
+                timerElement.classList.add('text-danger');
+                timerElement.classList.add('fw-bold');
+            }
         }
-        timeLeft--;
-    }
-
-    updateTimer();
-    const timerInterval = setInterval(updateTimer, 1000);
+        
+        // Initial call and set interval
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    });
 </script>
 {% endblock %} 

@@ -3,7 +3,7 @@ from app.models.database import db
 from app.routes.auth import auth
 from app.routes.admin import admin
 from app.routes.user import user
-from app.utils.helpers import create_admin
+from datetime import datetime
 
 def create_app():
     app = Flask(__name__)
@@ -11,6 +11,9 @@ def create_app():
     app.config['SECRET_KEY'] = 'hail-hydra'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_master.db'
     app.config['DEBUG'] = True
+
+    # Add now() function to Jinja environment
+    app.jinja_env.globals.update(now=datetime.now)
 
     db.init_app(app)
 
@@ -20,6 +23,5 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        create_admin()
 
     return app 
