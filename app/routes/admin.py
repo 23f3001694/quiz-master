@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app.models.database import db, Subject, Chapter, Quiz, Question, User
 from datetime import datetime
 from functools import wraps
+from sqlalchemy import or_
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -233,4 +234,80 @@ def delete_question(id):
         db.session.rollback()
         flash('Error deleting question. Please try again.')
     
-    return redirect(url_for('admin.manage_questions', quiz_id=quiz_id)) 
+    return redirect(url_for('admin.manage_questions', quiz_id=quiz_id))
+
+@admin.route('/users/<int:id>')
+@admin_required
+def view_user(id):
+    user = User.query.get_or_404(id)
+    return render_template('admin/view_user.html', user=user) 
+
+@admin.route('/search', methods=['GET'])
+@admin_required
+def search():
+    query = request.args.get('query', '').strip()
+    search_type = request.args.get('type', 'all')
+    
+    if not query:
+        flash('Please enter a search query', 'error')
+        return redirect(request.referrer or url_for('admin.dashboard'))
+        
+    results = {}
+    
+    if search_type in ['all', 'users']:
+        users = User.query.filter(
+            or_(
+                User.username.ilike(f'%{query}%'),
+                User.email.ilike(f'%{query}%'),
+                User.full_name.ilike(f'%{query}%')
+            )
+        ).all()
+        results['users'] = [{
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'full_name': user.full_name
+        } for user in users]
+    
+    if search_type in ['all', 'subjects']:
+        subjects = Subject.query.filter(
+            or_(
+                Subject.name.ilike(f'%{query}%'),
+                Subject.description.ilike(f'%{query}%')
+            )
+        ).all()
+        results['subjects'] = [{
+            'id': subject.id,
+            'name': subject.name,
+            'description': subject.description
+        } for subject in subjects]
+    
+    if search_type in ['all', 'quizzes']:
+        quizzes = Quiz.query.join(Chapter).filter(
+            or_(
+                Chapter.name.ilike(f'%{query}%'),
+                Quiz.time_duration.ilike(f'%{query}%')
+            )
+        ).all()
+        results['quizzes'] = [{
+            'id': quiz.id,
+            'chapter': quiz.chapter.name,
+            'date': quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M:%S'),
+            'duration': quiz.time_duration
+        } for quiz in quizzes]
+    
+    if search_type in ['all', 'questions']:
+        questions = Question.query.filter(
+            Question.question_statement.ilike(f'%{query}%')
+        ).all()
+        results['questions'] = [{
+            'id': question.id,
+            'quiz_id': question.quiz_id,
+            'statement': question.question_statement
+        } for question in questions]
+    
+    if not any(results.values()):
+        flash('No results found for your search', 'info')
+        return redirect(request.referrer or url_for('admin.dashboard'))
+        
+    return render_template('admin/search_results.html', results=results, query=query)

@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, reques
 from app.models.database import User, Subject, Chapter, Quiz, Question, Score, db
 from functools import wraps
 from datetime import datetime
+from sqlalchemy import or_
 
 user = Blueprint('user', __name__, url_prefix='/user')
 
@@ -108,3 +109,48 @@ def quiz_summary():
                          best_score=round(best_score, 1),
                          worst_score=round(worst_score, 1),
                          subject_scores=subject_scores) 
+
+@user.route('/search', methods=['GET'])
+@user_required
+def search():
+    query = request.args.get('query', '').strip()
+    search_type = request.args.get('type', 'all')
+    
+    if not query:
+        flash('Please enter a search query', 'error')
+        return redirect(request.referrer or url_for('user.dashboard'))
+        
+    results = {}
+    
+    if search_type in ['all', 'subjects']:
+        subjects = Subject.query.filter(
+            or_(
+                Subject.name.ilike(f'%{query}%'),
+                Subject.description.ilike(f'%{query}%')
+            )
+        ).all()
+        results['subjects'] = [{
+            'id': subject.id,
+            'name': subject.name,
+            'description': subject.description
+        } for subject in subjects]
+    
+    if search_type in ['all', 'quizzes']:
+        quizzes = Quiz.query.join(Chapter).filter(
+            or_(
+                Chapter.name.ilike(f'%{query}%'),
+                Quiz.time_duration.ilike(f'%{query}%')
+            )
+        ).all()
+        results['quizzes'] = [{
+            'id': quiz.id,
+            'chapter': quiz.chapter.name,
+            'date': quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M:%S'),
+            'duration': quiz.time_duration
+        } for quiz in quizzes]
+    
+    if not any(results.values()):
+        flash('No results found for your search', 'info')
+        return redirect(request.referrer or url_for('user.dashboard'))
+        
+    return render_template('user/search_results.html', results=results, query=query) 

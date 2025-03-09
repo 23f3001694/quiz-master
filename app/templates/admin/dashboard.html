@@ -3,7 +3,29 @@
 {% block title %}Admin Dashboard - Quiz Master{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('admin.search') }}" method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="query" class="form-control" placeholder="Search users, subjects, quizzes, or questions..." required>
+                </div>
+                <div class="col-md-4">
+                    <select name="type" class="form-select">
+                        <option value="all">All Categories</option>
+                        <option value="users">Users</option>
+                        <option value="subjects">Subjects</option>
+                        <option value="quizzes">Quizzes</option>
+                        <option value="questions">Questions</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">Dashboard</li>
@@ -47,6 +69,7 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Qualification</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -55,6 +78,9 @@
                                     <td>{{ user.full_name }}</td>
                                     <td>{{ user.username }}</td>
                                     <td>{{ user.qualification }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.view_user', id=user.id) }}" class="btn btn-sm btn-info">View</a>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

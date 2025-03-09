@@ -23,9 +23,11 @@ def login():
             user = User.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
-            session['email'] = user.email
             session['user_id'] = user.id
             session['user_type'] = user_type
+            if hasattr(user, 'email'):
+                session['email'] = user.email
+            
             if user_type == 'admin':
                 return redirect(url_for('admin.dashboard'))
             return redirect(url_for('user.dashboard'))

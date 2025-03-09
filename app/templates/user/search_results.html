@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - Quiz Master{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Search Results for "{{ query }}"</h2>
+    
+    {% if results.subjects %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="h5 mb-0">Subjects</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for subject in results.subjects %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ subject.name }}</h5>
+                            <p class="card-text">{{ subject.description }}</p>
+                            <a href="{{ url_for('user.view_subject', subject_id=subject.id) }}" class="btn btn-primary">View Subject</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if results.quizzes %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="h5 mb-0">Quizzes</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Chapter</th>
+                            <th>Date</th>
+                            <th>Duration</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quiz in results.quizzes %}
+                        <tr>
+                            <td>{{ quiz.chapter }}</td>
+                            <td>{{ quiz.date }}</td>
+                            <td>{{ quiz.duration }}</td>
+                            <td>
+                                <a href="{{ url_for('user.quiz_detail', quiz_id=quiz.id) }}" class="btn btn-sm btn-primary">View Quiz</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('user.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %} 

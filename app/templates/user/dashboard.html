@@ -2,6 +2,26 @@
 
 {% block content %}
 <div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('user.search') }}" method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="query" class="form-control" placeholder="Search subjects or quizzes..." required>
+                </div>
+                <div class="col-md-4">
+                    <select name="type" class="form-select">
+                        <option value="all">All Categories</option>
+                        <option value="subjects">Subjects</option>
+                        <option value="quizzes">Quizzes</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <h2>Welcome, {{ user.full_name }}!</h2>
     
     <div class="row mt-4">
