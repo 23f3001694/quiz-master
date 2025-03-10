@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, flash
 from app.models.database import User, Subject, Chapter, Quiz, Question, Score, db
 from app.utils.helpers import user_required, is_quiz_available, search_subjects, search_quizzes, format_datetime, calculate_score_statistics, get_subject_scores, calculate_percentage
+from app.utils.chart_utils import generate_user_performance_chart, generate_subject_performance_chart
 from datetime import datetime
 from sqlalchemy import or_
 
@@ -90,13 +91,19 @@ def quiz_summary():
     stats = calculate_score_statistics(user_scores)
     subject_scores = get_subject_scores(user_scores)
     
+    # Generate performance charts
+    performance_chart = generate_user_performance_chart(user_scores)
+    subject_chart = generate_subject_performance_chart(subject_scores)
+    
     return render_template('user/quiz_summary.html', 
                          user_scores=user_scores,
                          total_quizzes=stats['total_quizzes'],
                          average_score=stats['average_score'],
                          best_score=stats['best_score'],
                          worst_score=stats['worst_score'],
-                         subject_scores=subject_scores) 
+                         subject_scores=subject_scores,
+                         performance_chart=performance_chart,
+                         subject_chart=subject_chart) 
 
 @user.route('/search', methods=['GET'])
 @user_required

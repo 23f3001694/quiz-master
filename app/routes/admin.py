@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from app.models.database import db, Subject, Chapter, Quiz, Question, User
 from datetime import datetime
 from app.utils.helpers import admin_required, search_users, search_subjects, search_chapters, search_quizzes, search_questions
+from app.utils.chart_utils import generate_admin_quiz_stats, generate_admin_user_stats
 from sqlalchemy import or_
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -11,7 +12,13 @@ admin = Blueprint('admin', __name__, url_prefix='/admin')
 def dashboard():
     subjects = Subject.query.all()
     users = User.query.all()
-    return render_template('admin/dashboard.html', subjects=subjects, users=users)
+    
+    user_stats_chart = generate_admin_user_stats(users)
+    
+    return render_template('admin/dashboard.html', 
+                         subjects=subjects, 
+                         users=users,
+                         user_stats_chart=user_stats_chart)
 
 @admin.route('/subjects', methods=['GET'])
 @admin_required
@@ -111,7 +118,6 @@ def edit_chapter(id):
             db.session.rollback()
             flash('Error updating chapter. Please try again.')
     
-    # Ensure quizzes are loaded
     quizzes = Quiz.query.filter_by(chapter_id=chapter.id).all()
     return render_template('admin/edit_chapter.html', chapter=chapter, quizzes=quizzes)
 
@@ -135,7 +141,13 @@ def delete_chapter(id):
 def manage_quizzes(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
     quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
-    return render_template('admin/quizzes.html', chapter=chapter, quizzes=quizzes)
+    
+    quiz_stats_chart = generate_admin_quiz_stats(quizzes)
+    
+    return render_template('admin/quizzes.html', 
+                         chapter=chapter, 
+                         quizzes=quizzes,
+                         quiz_stats_chart=quiz_stats_chart)
 
 @admin.route('/chapters/<int:chapter_id>/quizzes/add', methods=['GET', 'POST'])
 @admin_required
@@ -145,11 +157,9 @@ def add_quiz(chapter_id):
         date_of_quiz = datetime.strptime(request.form['date_of_quiz'], '%Y-%m-%d')
         time_duration = request.form['time_duration']
         
-        # Parse start and end times
         start_time_str = request.form['start_time']
         end_time_str = request.form['end_time']
         
-        # Convert string times to Time objects
         start_time = datetime.strptime(start_time_str, '%H:%M').time()
         end_time = datetime.strptime(end_time_str, '%H:%M').time()
         
@@ -179,11 +189,9 @@ def edit_quiz(id):
         quiz.date_of_quiz = datetime.strptime(request.form['date_of_quiz'], '%Y-%m-%d')
         quiz.time_duration = request.form['time_duration']
         
-        # Parse start and end times
         start_time_str = request.form['start_time']
         end_time_str = request.form['end_time']
         
-        # Convert string times to Time objects
         quiz.start_time = datetime.strptime(start_time_str, '%H:%M').time()
         quiz.end_time = datetime.strptime(end_time_str, '%H:%M').time()
         
@@ -280,11 +288,35 @@ def delete_question(id):
     
     return redirect(url_for('admin.manage_questions', quiz_id=quiz_id))
 
+@admin.route('/users')
+@admin_required
+def manage_users():
+    users = User.query.all()
+    return render_template('admin/users.html', users=users)
+
 @admin.route('/users/<int:id>')
 @admin_required
 def view_user(id):
     user = User.query.get_or_404(id)
-    return render_template('admin/view_user.html', user=user) 
+    return render_template('admin/view_user.html', user=user)
+
+@admin.route('/users/<int:id>/delete')
+@admin_required
+def delete_user(id):
+    if id == session.get('user_id'):
+        flash('You cannot delete your own account!', 'danger')
+        return redirect(url_for('admin.manage_users'))
+        
+    user = User.query.get_or_404(id)
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash('User deleted successfully!', 'success')
+    except:
+        db.session.rollback()
+        flash('Error deleting user. Please try again.', 'danger')
+    
+    return redirect(url_for('admin.manage_users'))
 
 @admin.route('/search', methods=['GET'])
 @admin_required

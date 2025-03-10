@@ -33,6 +33,23 @@
     </nav>
     <h2>Admin Dashboard</h2>
     
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">User Statistics</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <img src="{{ user_stats_chart }}" class="img-fluid" alt="User Statistics">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-6">
             <div class="card">
@@ -62,29 +79,17 @@
                     <h5 class="card-title mb-0">Users</h5>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Qualification</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in users %}
-                                <tr>
-                                    <td>{{ user.full_name }}</td>
-                                    <td>{{ user.username }}</td>
-                                    <td>{{ user.qualification }}</td>
-                                    <td>
-                                        <a href="{{ url_for('admin.view_user', id=user.id) }}" class="btn btn-sm btn-info">View</a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-primary">Manage Users</a>
+                    <div class="mt-3">
+                        <h6>Recent Users:</h6>
+                        <ul class="list-group">
+                            {% for user in users[:5] %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ user.username }}
+                                <span class="badge bg-info rounded-pill">{{ user.scores|length }} quizzes taken</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </div>

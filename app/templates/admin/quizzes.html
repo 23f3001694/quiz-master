@@ -11,7 +11,7 @@
         </ol>
     </nav>
 
-    <div>
+    <div class="mb-4">
         <h2>Manage Quizzes - {{ chapter.name }}</h2>
         <a href="{{ url_for('admin.add_quiz', chapter_id=chapter.id) }}" class="btn btn-primary">
             Add New Quiz
@@ -25,6 +25,23 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Quiz Statistics</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <img src="{{ quiz_stats_chart }}" class="img-fluid" alt="Quiz Statistics">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         {% for quiz in quizzes %}
