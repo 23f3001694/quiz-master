@@ -1,0 +1,458 @@
+from flask import Blueprint, jsonify, request
+from app.models.database import db, Subject, Chapter, Quiz, Question, Score, User
+from datetime import datetime
+
+api = Blueprint('api', __name__, url_prefix='/api')
+
+@api.route('/subjects', methods=['GET'])
+def get_subjects():
+    subjects = Subject.query.all()
+    result = []
+    for subject in subjects:
+        result.append({
+            'id': subject.id,
+            'name': subject.name,
+            'description': subject.description
+        })
+    return jsonify(result)
+
+@api.route('/subjects/<int:subject_id>', methods=['GET'])
+def get_subject(subject_id):
+    subject = Subject.query.get_or_404(subject_id)
+    return jsonify({
+        'id': subject.id,
+        'name': subject.name,
+        'description': subject.description
+    })
+
+@api.route('/subjects', methods=['POST'])
+def create_subject():
+    data = request.get_json()
+    
+    if not data or 'name' not in data:
+        return jsonify({'error': 'Name is required'}), 400
+    
+    subject = Subject(
+        name=data['name'],
+        description=data.get('description', '')
+    )
+    
+    db.session.add(subject)
+    
+    try:
+        db.session.commit()
+        return jsonify({
+            'id': subject.id,
+            'name': subject.name,
+            'description': subject.description
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/subjects/<int:subject_id>', methods=['PUT'])
+def update_subject(subject_id):
+    subject = Subject.query.get_or_404(subject_id)
+    data = request.get_json()
+    
+    if 'name' in data:
+        subject.name = data['name']
+    if 'description' in data:
+        subject.description = data['description']
+    
+    try:
+        db.session.commit()
+        return jsonify({
+            'id': subject.id,
+            'name': subject.name,
+            'description': subject.description
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/subjects/<int:subject_id>', methods=['DELETE'])
+def delete_subject(subject_id):
+    subject = Subject.query.get_or_404(subject_id)
+    
+    try:
+        db.session.delete(subject)
+        db.session.commit()
+        return jsonify({'message': 'Subject deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/chapters', methods=['GET'])
+def get_chapters():
+    subject_id = request.args.get('subject_id', type=int)
+    
+    if subject_id:
+        chapters = Chapter.query.filter_by(subject_id=subject_id).all()
+    else:
+        chapters = Chapter.query.all()
+    
+    result = []
+    for chapter in chapters:
+        result.append({
+            'id': chapter.id,
+            'subject_id': chapter.subject_id,
+            'name': chapter.name,
+            'description': chapter.description
+        })
+    return jsonify(result)
+
+@api.route('/chapters/<int:chapter_id>', methods=['GET'])
+def get_chapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    return jsonify({
+        'id': chapter.id,
+        'subject_id': chapter.subject_id,
+        'name': chapter.name,
+        'description': chapter.description
+    })
+
+@api.route('/chapters', methods=['POST'])
+def create_chapter():
+    data = request.get_json()
+    
+    if not data or 'name' not in data or 'subject_id' not in data:
+        return jsonify({'error': 'Name and subject_id are required'}), 400
+    
+    subject = Subject.query.get(data['subject_id'])
+    if not subject:
+        return jsonify({'error': 'Subject not found'}), 404
+    
+    chapter = Chapter(
+        name=data['name'],
+        subject_id=data['subject_id'],
+        description=data.get('description', '')
+    )
+    
+    db.session.add(chapter)
+    
+    try:
+        db.session.commit()
+        return jsonify({
+            'id': chapter.id,
+            'subject_id': chapter.subject_id,
+            'name': chapter.name,
+            'description': chapter.description
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/chapters/<int:chapter_id>', methods=['PUT'])
+def update_chapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    data = request.get_json()
+    
+    if 'name' in data:
+        chapter.name = data['name']
+    if 'description' in data:
+        chapter.description = data['description']
+    if 'subject_id' in data:
+        subject = Subject.query.get(data['subject_id'])
+        if not subject:
+            return jsonify({'error': 'Subject not found'}), 404
+        chapter.subject_id = data['subject_id']
+    
+    try:
+        db.session.commit()
+        return jsonify({
+            'id': chapter.id,
+            'subject_id': chapter.subject_id,
+            'name': chapter.name,
+            'description': chapter.description
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/chapters/<int:chapter_id>', methods=['DELETE'])
+def delete_chapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    
+    try:
+        db.session.delete(chapter)
+        db.session.commit()
+        return jsonify({'message': 'Chapter deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/quizzes', methods=['GET'])
+def get_quizzes():
+    chapter_id = request.args.get('chapter_id', type=int)
+    
+    if chapter_id:
+        quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+    else:
+        quizzes = Quiz.query.all()
+    
+    result = []
+    for quiz in quizzes:
+        result.append({
+            'id': quiz.id,
+            'chapter_id': quiz.chapter_id,
+            'date_of_quiz': quiz.date_of_quiz.isoformat() if quiz.date_of_quiz else None,
+            'start_time': quiz.start_time.isoformat() if quiz.start_time else None,
+            'end_time': quiz.end_time.isoformat() if quiz.end_time else None,
+            'time_duration': quiz.time_duration
+        })
+    return jsonify(result)
+
+@api.route('/quizzes/<int:quiz_id>', methods=['GET'])
+def get_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    
+    questions = []
+    for question in quiz.questions:
+        questions.append({
+            'id': question.id,
+            'question_statement': question.question_statement,
+            'option1': question.option1,
+            'option2': question.option2,
+            'option3': question.option3,
+            'option4': question.option4,
+            'correct_option': question.correct_option
+        })
+    
+    return jsonify({
+        'id': quiz.id,
+        'chapter_id': quiz.chapter_id,
+        'date_of_quiz': quiz.date_of_quiz.isoformat() if quiz.date_of_quiz else None,
+        'start_time': quiz.start_time.isoformat() if quiz.start_time else None,
+        'end_time': quiz.end_time.isoformat() if quiz.end_time else None,
+        'time_duration': quiz.time_duration,
+        'questions': questions
+    })
+
+@api.route('/quizzes', methods=['POST'])
+def create_quiz():
+    data = request.get_json()
+    
+    if not data or 'chapter_id' not in data or 'date_of_quiz' not in data or 'start_time' not in data or 'end_time' not in data:
+        return jsonify({'error': 'chapter_id, date_of_quiz, start_time, and end_time are required'}), 400
+    
+    chapter = Chapter.query.get(data['chapter_id'])
+    if not chapter:
+        return jsonify({'error': 'Chapter not found'}), 404
+    
+    try:
+        date_of_quiz = datetime.fromisoformat(data['date_of_quiz'])
+        
+        start_time_str = data['start_time']
+        end_time_str = data['end_time']
+        
+        quiz = Quiz(
+            chapter_id=data['chapter_id'],
+            date_of_quiz=date_of_quiz,
+            start_time=start_time_str,
+            end_time=end_time_str,
+            time_duration=data.get('time_duration', '')
+        )
+        
+        db.session.add(quiz)
+        db.session.commit()
+        
+        if 'questions' in data and isinstance(data['questions'], list):
+            for q_data in data['questions']:
+                if all(key in q_data for key in ['question_statement', 'option1', 'option2', 'option3', 'option4', 'correct_option']):
+                    question = Question(
+                        quiz_id=quiz.id,
+                        question_statement=q_data['question_statement'],
+                        option1=q_data['option1'],
+                        option2=q_data['option2'],
+                        option3=q_data['option3'],
+                        option4=q_data['option4'],
+                        correct_option=q_data['correct_option']
+                    )
+                    db.session.add(question)
+            
+            db.session.commit()
+        
+        return jsonify({
+            'id': quiz.id,
+            'chapter_id': quiz.chapter_id,
+            'date_of_quiz': quiz.date_of_quiz.isoformat(),
+            'start_time': quiz.start_time.isoformat(),
+            'end_time': quiz.end_time.isoformat(),
+            'time_duration': quiz.time_duration
+        }), 201
+    
+    except ValueError as e:
+        return jsonify({'error': f'Invalid date or time format: {str(e)}'}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/quizzes/<int:quiz_id>', methods=['PUT'])
+def update_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    data = request.get_json()
+    
+    try:
+        if 'chapter_id' in data:
+            chapter = Chapter.query.get(data['chapter_id'])
+            if not chapter:
+                return jsonify({'error': 'Chapter not found'}), 404
+            quiz.chapter_id = data['chapter_id']
+        
+        if 'date_of_quiz' in data:
+            quiz.date_of_quiz = datetime.fromisoformat(data['date_of_quiz'])
+        
+        if 'start_time' in data:
+            quiz.start_time = data['start_time']
+        
+        if 'end_time' in data:
+            quiz.end_time = data['end_time']
+        
+        if 'time_duration' in data:
+            quiz.time_duration = data['time_duration']
+        
+        db.session.commit()
+        
+        return jsonify({
+            'id': quiz.id,
+            'chapter_id': quiz.chapter_id,
+            'date_of_quiz': quiz.date_of_quiz.isoformat(),
+            'start_time': quiz.start_time.isoformat(),
+            'end_time': quiz.end_time.isoformat(),
+            'time_duration': quiz.time_duration
+        })
+    
+    except ValueError as e:
+        return jsonify({'error': f'Invalid date or time format: {str(e)}'}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/quizzes/<int:quiz_id>', methods=['DELETE'])
+def delete_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    
+    try:
+        db.session.delete(quiz)
+        db.session.commit()
+        return jsonify({'message': 'Quiz deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/scores', methods=['GET'])
+def get_scores():
+    user_id = request.args.get('user_id', type=int)
+    quiz_id = request.args.get('quiz_id', type=int)
+    
+    query = Score.query
+    
+    if user_id:
+        query = query.filter_by(user_id=user_id)
+    
+    if quiz_id:
+        query = query.filter_by(quiz_id=quiz_id)
+    
+    scores = query.all()
+    
+    result = []
+    for score in scores:
+        result.append({
+            'id': score.id,
+            'user_id': score.user_id,
+            'quiz_id': score.quiz_id,
+            'total_score': score.total_score,
+            'max_score': score.max_score,
+            'percentage': (score.total_score / score.max_score * 100) if score.max_score > 0 else 0
+        })
+    
+    return jsonify(result)
+
+@api.route('/scores/<int:score_id>', methods=['GET'])
+def get_score(score_id):
+    score = Score.query.get_or_404(score_id)
+    
+    return jsonify({
+        'id': score.id,
+        'user_id': score.user_id,
+        'quiz_id': score.quiz_id,
+        'total_score': score.total_score,
+        'max_score': score.max_score,
+        'percentage': (score.total_score / score.max_score * 100) if score.max_score > 0 else 0
+    })
+
+@api.route('/scores', methods=['POST'])
+def create_score():
+    data = request.get_json()
+    
+    if not data or 'user_id' not in data or 'quiz_id' not in data or 'total_score' not in data or 'max_score' not in data:
+        return jsonify({'error': 'user_id, quiz_id, total_score, and max_score are required'}), 400
+    
+    user = User.query.get(data['user_id'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    quiz = Quiz.query.get(data['quiz_id'])
+    if not quiz:
+        return jsonify({'error': 'Quiz not found'}), 404
+    
+    score = Score(
+        user_id=data['user_id'],
+        quiz_id=data['quiz_id'],
+        total_score=data['total_score'],
+        max_score=data['max_score']
+    )
+    
+    db.session.add(score)
+    
+    try:
+        db.session.commit()
+        return jsonify({
+            'id': score.id,
+            'user_id': score.user_id,
+            'quiz_id': score.quiz_id,
+            'total_score': score.total_score,
+            'max_score': score.max_score,
+            'percentage': (score.total_score / score.max_score * 100) if score.max_score > 0 else 0
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/scores/<int:score_id>', methods=['PUT'])
+def update_score(score_id):
+    score = Score.query.get_or_404(score_id)
+    data = request.get_json()
+    
+    if 'total_score' in data:
+        score.total_score = data['total_score']
+    
+    if 'max_score' in data:
+        score.max_score = data['max_score']
+    
+    try:
+        db.session.commit()
+        return jsonify({
+            'id': score.id,
+            'user_id': score.user_id,
+            'quiz_id': score.quiz_id,
+            'total_score': score.total_score,
+            'max_score': score.max_score,
+            'percentage': (score.total_score / score.max_score * 100) if score.max_score > 0 else 0
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@api.route('/scores/<int:score_id>', methods=['DELETE'])
+def delete_score(score_id):
+    score = Score.query.get_or_404(score_id)
+    
+    try:
+        db.session.delete(score)
+        db.session.commit()
+        return jsonify({'message': 'Score deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400 

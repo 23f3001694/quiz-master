@@ -3,6 +3,7 @@ from app.models.database import db
 from app.routes.auth import auth
 from app.routes.admin import admin
 from app.routes.user import user
+from app.routes.api import api
 from datetime import datetime
 
 def create_app():
@@ -20,6 +21,7 @@ def create_app():
     app.register_blueprint(auth)
     app.register_blueprint(admin)
     app.register_blueprint(user)
+    app.register_blueprint(api)
 
     with app.app_context():
         db.create_all()
