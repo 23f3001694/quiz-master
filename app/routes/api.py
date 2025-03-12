@@ -243,15 +243,25 @@ def create_quiz():
     try:
         date_of_quiz = datetime.fromisoformat(data['date_of_quiz'])
         
-        start_time_str = data['start_time']
-        end_time_str = data['end_time']
+        start_time = datetime.strptime(data['start_time'], '%H:%M:%S').time()
+        end_time = datetime.strptime(data['end_time'], '%H:%M:%S').time()
+        
+        time_duration = data.get('time_duration', '')
+        if time_duration:
+            try:
+                duration_mins = int(time_duration)
+                if duration_mins <= 0:
+                    return jsonify({'error': 'time_duration must be a positive number'}), 400
+                time_duration = f"{duration_mins} mins"
+            except ValueError:
+                return jsonify({'error': 'time_duration must be a valid number'}), 400
         
         quiz = Quiz(
             chapter_id=data['chapter_id'],
             date_of_quiz=date_of_quiz,
-            start_time=start_time_str,
-            end_time=end_time_str,
-            time_duration=data.get('time_duration', '')
+            start_time=start_time,
+            end_time=end_time,
+            time_duration=time_duration
         )
         
         db.session.add(quiz)
@@ -304,13 +314,20 @@ def update_quiz(quiz_id):
             quiz.date_of_quiz = datetime.fromisoformat(data['date_of_quiz'])
         
         if 'start_time' in data:
-            quiz.start_time = data['start_time']
+            quiz.start_time = datetime.strptime(data['start_time'], '%H:%M:%S').time()
         
         if 'end_time' in data:
-            quiz.end_time = data['end_time']
+            quiz.end_time = datetime.strptime(data['end_time'], '%H:%M:%S').time()
         
         if 'time_duration' in data:
-            quiz.time_duration = data['time_duration']
+            time_duration = data['time_duration']
+            try:
+                duration_mins = int(time_duration)
+                if duration_mins <= 0:
+                    return jsonify({'error': 'time_duration must be a positive number'}), 400
+                quiz.time_duration = f"{duration_mins} mins"
+            except ValueError:
+                return jsonify({'error': 'time_duration must be a valid number'}), 400
         
         db.session.commit()
         
