@@ -55,9 +55,12 @@ def format_datetime(dt):
 
 def calculate_percentage(score, max_score):
     """Calculate percentage from score and max score"""
-    if max_score == 0:
+    try:
+        if not isinstance(max_score, (int, float)) or max_score <= 0:
+            return 0
+        return round((score / max_score) * 100, 2)
+    except (ZeroDivisionError, TypeError):
         return 0
-    return round((score / max_score) * 100, 2)
 
 def validate_form_data(form_data, required_fields):
     """Validate that all required fields are present in form data"""
@@ -150,20 +153,41 @@ def search_questions(query):
 def calculate_score_statistics(user_scores):
     """Calculate score statistics from a list of user scores"""
     total_quizzes = len(user_scores)
-    if total_quizzes > 0:
+    if total_quizzes == 0:
+        return {
+            'total_quizzes': 0,
+            'average_score': 0,
+            'best_score': 0,
+            'worst_score': 0
+        }
+    
+    try:
         score_percentages = [calculate_percentage(score.total_score, score.max_score) for score in user_scores]
+        if not score_percentages:
+            return {
+                'total_quizzes': total_quizzes,
+                'average_score': 0,
+                'best_score': 0,
+                'worst_score': 0
+            }
+        
         average_score = sum(score_percentages) / len(score_percentages)
         best_score = max(score_percentages)
         worst_score = min(score_percentages)
-    else:
-        average_score = best_score = worst_score = 0
-    
-    return {
-        'total_quizzes': total_quizzes,
-        'average_score': round(average_score, 1),
-        'best_score': round(best_score, 1),
-        'worst_score': round(worst_score, 1)
-    }
+        
+        return {
+            'total_quizzes': total_quizzes,
+            'average_score': round(average_score, 1),
+            'best_score': round(best_score, 1),
+            'worst_score': round(worst_score, 1)
+        }
+    except Exception:
+        return {
+            'total_quizzes': total_quizzes,
+            'average_score': 0,
+            'best_score': 0,
+            'worst_score': 0
+        }
 
 def get_subject_scores(user_scores):
     """Group scores by subject and calculate percentages"""

@@ -19,8 +19,23 @@ def generate_user_performance_chart(scores):
     """Generate line chart showing user's performance over time"""
     fig, ax = plt.subplots(figsize=(10, 6))
     
+    if not scores:
+        ax.text(0.5, 0.5, 'No quiz data available', 
+                horizontalalignment='center', verticalalignment='center',
+                transform=ax.transAxes)
+        return get_base64_chart(fig)
+    
     dates = [score.quiz.date_of_quiz for score in scores]
-    percentages = [(score.total_score / score.max_score * 100) for score in scores]
+    percentages = []
+    for score in scores:
+        try:
+            if score.max_score > 0:
+                percentage = (score.total_score / score.max_score * 100)
+            else:
+                percentage = 0
+            percentages.append(percentage)
+        except (ZeroDivisionError, TypeError):
+            percentages.append(0)
     
     ax.plot(dates, percentages, marker='o')
     ax.set_title('Performance Over Time')
@@ -36,12 +51,25 @@ def generate_subject_performance_chart(subject_scores):
     """Generate bar chart showing performance by subject"""
     fig, ax = plt.subplots(figsize=(10, 6))
     
+    if not subject_scores:
+        ax.text(0.5, 0.5, 'No subject data available', 
+                horizontalalignment='center', verticalalignment='center',
+                transform=ax.transAxes)
+        return get_base64_chart(fig)
+    
     subjects = list(subject_scores.keys())
     avg_scores = []
     
     for scores in subject_scores.values():
-        percentages = [score['percentage'] for score in scores]
-        avg_scores.append(sum(percentages) / len(percentages) if percentages else 0)
+        try:
+            if scores:
+                percentages = [score['percentage'] for score in scores]
+                avg_score = sum(percentages) / len(percentages) if percentages else 0
+            else:
+                avg_score = 0
+            avg_scores.append(avg_score)
+        except (ZeroDivisionError, TypeError):
+            avg_scores.append(0)
     
     ax.bar(subjects, avg_scores)
     ax.set_title('Average Performance by Subject')
