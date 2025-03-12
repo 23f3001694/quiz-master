@@ -4,22 +4,24 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Search Results for "{{ query }}"</h2>
+    <div class="card p-4 mb-4">
+        <h2 class="mb-0">Search Results for "{{ query }}"</h2>
+    </div>
     
     {% if results.subjects %}
     <div class="card mb-4">
         <div class="card-header">
             <h3 class="h5 mb-0">Subjects</h3>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="row">
                 {% for subject in results.subjects %}
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100">
-                        <div class="card-body">
+                        <div class="card-body p-4">
                             <h5 class="card-title">{{ subject.name }}</h5>
                             <p class="card-text">{{ subject.description }}</p>
-                            <a href="{{ url_for('user.view_subject', subject_id=subject.id) }}" class="btn btn-primary">View Subject</a>
+                            <a href="{{ url_for('user.view_subject', subject_id=subject.id) }}" class="btn btn-primary px-4">View Subject</a>
                         </div>
                     </div>
                 </div>
@@ -34,7 +36,7 @@
         <div class="card-header">
             <h3 class="h5 mb-0">Quizzes</h3>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -52,7 +54,7 @@
                             <td>{{ quiz.date }}</td>
                             <td>{{ quiz.duration }}</td>
                             <td>
-                                <a href="{{ url_for('user.quiz_detail', quiz_id=quiz.id) }}" class="btn btn-sm btn-primary">View Quiz</a>
+                                <a href="{{ url_for('user.quiz_detail', quiz_id=quiz.id) }}" class="btn btn-sm btn-primary px-3">View Quiz</a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -63,8 +65,14 @@
     </div>
     {% endif %}
 
+    {% if not results.subjects and not results.quizzes %}
+    <div class="alert p-4">
+        <p class="mb-0">No results found for your search query.</p>
+    </div>
+    {% endif %}
+
     <div class="mt-4">
-        <a href="{{ url_for('user.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-light px-4">Back to Dashboard</a>
     </div>
 </div>
 {% endblock %} 

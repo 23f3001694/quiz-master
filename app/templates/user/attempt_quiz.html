@@ -9,7 +9,7 @@
         </div>
         <div class="col-md-4 text-right">
             <div class="card">
-                <div class="card-body">
+                <div class="card-body p-4">
                     <h5 class="card-title">Time Remaining</h5>
                     <h3 id="timer" class="text-center text-danger">Loading...</h3>
                 </div>
@@ -21,24 +21,24 @@
         {% for question in quiz.questions %}
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Question {{ loop.index }}</h5>
+                <h5 class="mb-0">Question {{ loop.index }}</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 <p class="card-text">{{ question.question_statement }}</p>
                 
-                <div class="form-check mb-2">
+                <div class="form-check mb-3">
                     <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="1" required>
                     <label class="form-check-label">{{ question.option1 }}</label>
                 </div>
-                <div class="form-check mb-2">
+                <div class="form-check mb-3">
                     <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="2">
                     <label class="form-check-label">{{ question.option2 }}</label>
                 </div>
-                <div class="form-check mb-2">
+                <div class="form-check mb-3">
                     <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="3">
                     <label class="form-check-label">{{ question.option3 }}</label>
                 </div>
-                <div class="form-check mb-2">
+                <div class="form-check mb-3">
                     <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="4">
                     <label class="form-check-label">{{ question.option4 }}</label>
                 </div>
@@ -47,15 +47,26 @@
         {% endfor %}
 
         <div class="text-center mb-4">
-            <button type="submit" class="btn btn-primary btn-lg">Submit Quiz</button>
+            <button type="submit" class="btn btn-primary btn-lg px-5">Submit Quiz</button>
         </div>
     </form>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Get quiz end time from server
-        const quizEndTime = new Date('{{ quiz.date_of_quiz.strftime("%Y-%m-%d") }}T{{ quiz.end_time.strftime("%H:%M") }}:00');
+        // Parse quiz duration from the server (assuming format like "60 mins" or "2 hours")
+        const durationStr = "{{ quiz.time_duration }}";
+        let durationMinutes = 0;
+        
+        if (durationStr.includes('hour')) {
+            durationMinutes = parseInt(durationStr) * 60;
+        } else if (durationStr.includes('min')) {
+            durationMinutes = parseInt(durationStr);
+        }
+        
+        // Set quiz start time when page loads
+        const quizStartTime = new Date();
+        const quizEndTime = new Date(quizStartTime.getTime() + durationMinutes * 60 * 1000);
         
         // Update timer every second
         const timerElement = document.getElementById('timer');

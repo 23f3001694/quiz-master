@@ -3,32 +3,32 @@
 {% block title %}Search Results - Admin - Quiz Master{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Search Results for "{{ query }}"</h2>
+<div class="container py-4">
+    <h2 class="mb-4">Search Results for "{{ query }}"</h2>
     
     {% if results.users %}
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header py-3">
             <h3 class="h5 mb-0">Users</h3>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Username</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Actions</th>
+                            <th class="py-3">Username</th>
+                            <th class="py-3">Full Name</th>
+                            <th class="py-3">Email</th>
+                            <th class="py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for user in results.users %}
                         <tr>
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.full_name }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>
+                            <td class="py-3">{{ user.username }}</td>
+                            <td class="py-3">{{ user.full_name }}</td>
+                            <td class="py-3">{{ user.email }}</td>
+                            <td class="py-3">
                                 <a href="{{ url_for('admin.view_user', id=user.id) }}" class="btn btn-sm btn-info">View</a>
                             </td>
                         </tr>
@@ -42,27 +42,29 @@
 
     {% if results.subjects %}
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header py-3">
             <h3 class="h5 mb-0">Subjects</h3>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Actions</th>
+                            <th class="py-3">Name</th>
+                            <th class="py-3">Description</th>
+                            <th class="py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for subject in results.subjects %}
                         <tr>
-                            <td>{{ subject.name }}</td>
-                            <td>{{ subject.description }}</td>
-                            <td>
-                                <a href="{{ url_for('admin.edit_subject', id=subject.id) }}" class="btn btn-sm btn-primary">Edit</a>
-                                <a href="{{ url_for('admin.manage_chapters', subject_id=subject.id) }}" class="btn btn-sm btn-info">Chapters</a>
+                            <td class="py-3">{{ subject.name }}</td>
+                            <td class="py-3">{{ subject.description }}</td>
+                            <td class="py-3">
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('admin.edit_subject', id=subject.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                    <a href="{{ url_for('admin.manage_chapters', subject_id=subject.id) }}" class="btn btn-sm btn-info">Chapters</a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -75,29 +77,31 @@
 
     {% if results.quizzes %}
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header py-3">
             <h3 class="h5 mb-0">Quizzes</h3>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Chapter</th>
-                            <th>Date</th>
-                            <th>Duration</th>
-                            <th>Actions</th>
+                            <th class="py-3">Chapter</th>
+                            <th class="py-3">Date</th>
+                            <th class="py-3">Duration</th>
+                            <th class="py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for quiz in results.quizzes %}
                         <tr>
-                            <td>{{ quiz.chapter }}</td>
-                            <td>{{ quiz.date }}</td>
-                            <td>{{ quiz.duration }}</td>
-                            <td>
-                                <a href="{{ url_for('admin.edit_quiz', id=quiz.id) }}" class="btn btn-sm btn-primary">Edit</a>
-                                <a href="{{ url_for('admin.manage_questions', quiz_id=quiz.id) }}" class="btn btn-sm btn-info">Questions</a>
+                            <td class="py-3">{{ quiz.chapter }}</td>
+                            <td class="py-3">{{ quiz.date }}</td>
+                            <td class="py-3">{{ quiz.duration }}</td>
+                            <td class="py-3">
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('admin.edit_quiz', id=quiz.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                    <a href="{{ url_for('admin.manage_questions', quiz_id=quiz.id) }}" class="btn btn-sm btn-info">Questions</a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -110,25 +114,25 @@
 
     {% if results.questions %}
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header py-3">
             <h3 class="h5 mb-0">Questions</h3>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Question</th>
-                            <th>Quiz ID</th>
-                            <th>Actions</th>
+                            <th class="py-3">Question</th>
+                            <th class="py-3">Quiz ID</th>
+                            <th class="py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for question in results.questions %}
                         <tr>
-                            <td>{{ question.statement }}</td>
-                            <td>{{ question.quiz_id }}</td>
-                            <td>
+                            <td class="py-3">{{ question.statement }}</td>
+                            <td class="py-3">{{ question.quiz_id }}</td>
+                            <td class="py-3">
                                 <a href="{{ url_for('admin.edit_question', id=question.id) }}" class="btn btn-sm btn-primary">Edit</a>
                             </td>
                         </tr>
@@ -140,7 +144,7 @@
     </div>
     {% endif %}
 
-    <div class="mt-4">
+    <div>
         <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
     </div>
 </div>

@@ -3,8 +3,8 @@
 {% block content %}
 <div class="container mt-4">
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
+        <ol class="breadcrumb p-3">
+            <li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}" class="text-brown">Dashboard</a></li>
             <li class="breadcrumb-item active" aria-current="page">Quiz Summary</li>
         </ol>
     </nav>
@@ -12,10 +12,10 @@
     <div class="row">
         <div class="col-md-12 mb-4">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header">
                     <h3 class="mb-0">Overall Performance</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="row text-center">
                         <div class="col-md-3">
                             <h4>Total Quizzes</h4>
@@ -43,7 +43,7 @@
                 <div class="card-header">
                     <h4 class="mb-0">Performance Charts</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="row">
                         <div class="col-md-6 mb-4">
                             <img src="{{ performance_chart }}" class="img-fluid" alt="Performance Over Time">
@@ -62,7 +62,7 @@
                 <div class="card-header">
                     <h4 class="mb-0">{{ subject_name }}</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -91,7 +91,7 @@
                                     </td>
                                     <td>
                                         <a href="{{ url_for('user.quiz_result', quiz_id=score_data.score.quiz_id, score_id=score_data.score.id) }}" 
-                                           class="btn btn-sm btn-info">
+                                           class="btn btn-sm btn-primary">
                                             View Details
                                         </a>
                                     </td>
@@ -107,7 +107,7 @@
 
         {% if not subject_scores %}
         <div class="col-md-12">
-            <div class="alert alert-info">
+            <div class="alert p-4">
                 <p class="mb-0">You haven't attempted any quizzes yet.</p>
             </div>
         </div>

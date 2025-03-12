@@ -3,9 +3,9 @@
 {% block title %}Add New Chapter - Admin - Quiz Master{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">Subjects</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_chapters', subject_id=subject.id) }}">{{ subject.name }}</a></li>
@@ -14,16 +14,16 @@
     </nav>
 
     <div class="card">
-        <div class="card-header">
+        <div class="card-header py-3">
             <h2 class="mb-0">Add New Chapter to {{ subject.name }}</h2>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <form method="POST" action="{{ url_for('admin.manage_chapters', subject_id=subject.id) }}">
-                <div class="mb-3">
+                <div class="mb-4">
                     <label for="name" class="form-label">Chapter Name</label>
                     <input type="text" class="form-control" id="name" name="name" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-4">
                     <label for="description" class="form-label">Description</label>
                     <textarea class="form-control" id="description" name="description" rows="4"></textarea>
                 </div>

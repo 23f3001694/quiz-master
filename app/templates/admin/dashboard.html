@@ -3,9 +3,9 @@
 {% block title %}Admin Dashboard - Quiz Master{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container py-4">
     <div class="card mb-4">
-        <div class="card-body">
+        <div class="card-body p-4">
             <form action="{{ url_for('admin.search') }}" method="GET" class="row g-3">
                 <div class="col-md-6">
                     <input type="text" name="query" class="form-control" placeholder="Search users, subjects, quizzes, or questions..." required>
@@ -26,20 +26,21 @@
         </div>
     </div>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item active">Dashboard</li>
         </ol>
     </nav>
-    <h2>Admin Dashboard</h2>
     
-    <div class="row mb-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
+    
+    <div class="row g-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header py-3">
                     <h4 class="mb-0">User Statistics</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="row">
                         <div class="col-12">
                             <img src="{{ user_stats_chart }}" class="img-fluid" alt="User Statistics">
@@ -48,9 +49,7 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">

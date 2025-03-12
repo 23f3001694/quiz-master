@@ -3,18 +3,18 @@
 {% block content %}
 <div class="container mt-4">
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('user.view_subject', subject_id=quiz.chapter.subject.id) }}">{{ quiz.chapter.subject.name }}</a></li>
+        <ol class="breadcrumb p-3">
+            <li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}" class="text-brown">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('user.view_subject', subject_id=quiz.chapter.subject.id) }}" class="text-brown">{{ quiz.chapter.subject.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Quiz Results</li>
         </ol>
     </nav>
 
     <div class="card">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header">
             <h2 class="mb-0">Quiz Results</h2>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="text-center mb-4">
                 <h3>Your Score</h3>
                 <h1 class="display-4">{{ score.total_score }} / {{ score.max_score }}</h1>
@@ -23,19 +23,19 @@
                 </p>
             </div>
 
-            <div class="alert {% if percentage >= 70 %}alert-success{% else %}alert-warning{% endif %}">
+            <div class="alert {% if percentage >= 70 %}alert-success{% else %}alert-warning{% endif %} p-4">
                 {% if percentage >= 70 %}
                     <h4 class="alert-heading">Congratulations! 🎉</h4>
-                    <p>You've done well on this quiz! Keep up the good work!</p>
+                    <p class="mb-0">You've done well on this quiz! Keep up the good work!</p>
                 {% else %}
                     <h4 class="alert-heading">Room for Improvement</h4>
-                    <p>Don't worry! Review the material and try again with a different quiz.</p>
+                    <p class="mb-0">Don't worry! Review the material and try again with a different quiz.</p>
                 {% endif %}
             </div>
 
             <div class="text-center mt-4">
-                <a href="{{ url_for('user.view_subject', subject_id=quiz.chapter.subject.id) }}" class="btn btn-primary">Back to Subject</a>
-                <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">Go to Dashboard</a>
+                <a href="{{ url_for('user.view_subject', subject_id=quiz.chapter.subject.id) }}" class="btn btn-primary px-4">Back to Subject</a>
+                <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-light px-4">Go to Dashboard</a>
             </div>
         </div>
     </div>

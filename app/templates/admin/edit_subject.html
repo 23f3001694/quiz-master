@@ -3,32 +3,32 @@
 {% block title %}Edit Subject - Admin - Quiz Master{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">Subjects</a></li>
             <li class="breadcrumb-item active">Edit Subject</li>
         </ol>
     </nav>
 
-    <div class="card">
-        <div class="card-header">
+    <div class="card mb-4">
+        <div class="card-header py-3">
             <h2 class="mb-0">Edit Subject</h2>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <form method="POST" action="{{ url_for('admin.edit_subject', id=subject.id) }}">
-                <div class="mb-3">
+                <div class="mb-4">
                     <label for="name" class="form-label">Subject Name</label>
                     <input type="text" class="form-control" id="name" name="name" value="{{ subject.name }}" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-4">
                     <label for="description" class="form-label">Description</label>
                     <textarea class="form-control" id="description" name="description" rows="4" required>{{ subject.description }}</textarea>
                 </div>
                 <div class="d-flex justify-content-between">
                     <button type="submit" class="btn btn-primary">Update Subject</button>
-                    <div>
+                    <div class="d-flex gap-2">
                         <a href="{{ url_for('admin.manage_subjects') }}" class="btn btn-secondary">Cancel</a>
                         <a href="{{ url_for('admin.delete_subject', id=subject.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this subject? This will also delete all associated chapters, quizzes, and questions.')">Delete Subject</a>
                     </div>
@@ -38,27 +38,27 @@
     </div>
 
     {% if subject.chapters %}
-    <div class="card mt-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h3 class="h5 mb-0">Chapters in this Subject</h3>
             <a href="{{ url_for('admin.manage_chapters', subject_id=subject.id) }}" class="btn btn-primary btn-sm">Manage Chapters</a>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Chapter Name</th>
-                            <th>Description</th>
-                            <th>Number of Quizzes</th>
+                            <th class="py-3">Chapter Name</th>
+                            <th class="py-3">Description</th>
+                            <th class="py-3">Number of Quizzes</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for chapter in subject.chapters %}
                         <tr>
-                            <td>{{ chapter.name }}</td>
-                            <td>{{ chapter.description }}</td>
-                            <td>{{ chapter.quizzes|length }}</td>
+                            <td class="py-3">{{ chapter.name }}</td>
+                            <td class="py-3">{{ chapter.description }}</td>
+                            <td class="py-3">{{ chapter.quizzes|length }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

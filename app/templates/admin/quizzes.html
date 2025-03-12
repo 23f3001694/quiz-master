@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">Subjects</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_chapters', subject_id=chapter.subject_id) }}">{{ chapter.subject.name }}</a></li>
@@ -11,8 +11,8 @@
         </ol>
     </nav>
 
-    <div class="mb-4">
-        <h2>Manage Quizzes - {{ chapter.name }}</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Manage Quizzes - {{ chapter.name }}</h2>
         <a href="{{ url_for('admin.add_quiz', chapter_id=chapter.id) }}" class="btn btn-primary">
             Add New Quiz
         </a>
@@ -21,18 +21,18 @@
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-info">{{ message }}</div>
+                <div class="alert alert-info mb-4">{{ message }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
-    <div class="row mb-4">
+    <div class="row g-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header py-3">
                     <h4 class="mb-0">Quiz Statistics</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="row">
                         <div class="col-12">
                             <img src="{{ quiz_stats_chart }}" class="img-fluid" alt="Quiz Statistics">
@@ -41,21 +41,19 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
         {% for quiz in quizzes %}
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Quiz on {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</h5>
-                    <p class="card-text">Duration: {{ quiz.time_duration }}</p>
-                    <p class="card-text">Questions: {{ quiz.questions|length }}</p>
-                    <div>
-                        <a href="{{ url_for('admin.manage_questions', quiz_id=quiz.id) }}" class="btn btn-info">Manage Questions</a>
-                        <div>
-                            <a href="{{ url_for('admin.edit_quiz', id=quiz.id) }}" class="btn btn-warning">Edit</a>
-                            <a href="{{ url_for('admin.delete_quiz', id=quiz.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this quiz?')">Delete</a>
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">Quiz on {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</h5>
+                    <p class="card-text mb-2">Duration: {{ quiz.time_duration }}</p>
+                    <p class="card-text mb-4">Questions: {{ quiz.questions|length }}</p>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="{{ url_for('admin.manage_questions', quiz_id=quiz.id) }}" class="btn btn-info w-100">Manage Questions</a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('admin.edit_quiz', id=quiz.id) }}" class="btn btn-warning flex-grow-1">Edit</a>
+                            <a href="{{ url_for('admin.delete_quiz', id=quiz.id) }}" class="btn btn-danger flex-grow-1" onclick="return confirm('Are you sure you want to delete this quiz?')">Delete</a>
                         </div>
                     </div>
                 </div>

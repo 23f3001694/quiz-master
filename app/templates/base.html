@@ -5,11 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Quiz Master{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+        }
+        .navbar {
+            background-color: #333333;
+            opacity: 0.9;
+        }
+        .navbar-brand span {
+            border: 2px solid #E0E0E0;
+            background-color: #444444;
+        }
+        .nav-link {
+            color: #E0E0E0;
+        }
+        .alert {
+            background-color: #444444;
+            color: #E0E0E0;
+            border: 2px solid #ADD8E6;
+        }
+        /* Card styles */
+        .card {
+            background-color: #333333;
+            color: #E0E0E0;
+            border: 1px solid #444444;
+        }
+        .card-header {
+            background-color: #444444;
+            border-bottom: 1px solid #555555;
+            color: #E0E0E0;
+        }
+        /* Form input styles */
+        .form-control, .form-select {
+            background-color: #333333;
+            color: #E0E0E0;
+            border: 1px solid #555555;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #333333;
+            color: #E0E0E0;
+            border-color: #A52A2A;
+            box-shadow: 0 0 0 0.2rem rgba(165, 42, 42, 0.25);
+        }
+        /* Button styles */
+        .btn-primary {
+            background-color: #A52A2A;
+            border-color: #A52A2A;
+        }
+        .btn-primary:hover {
+            background-color: #8B4513;
+            border-color: #8B4513;
+        }
+        .btn-secondary {
+            background-color: #666666;
+            border-color: #666666;
+        }
+        .btn-secondary:hover {
+            background-color: #777777;
+            border-color: #777777;
+        }
+        .btn-outline-light:hover {
+            background-color: #444444;
+        }
+        /* Form check styles */
+        .form-check-input {
+            background-color: #333333;
+            color: #E0E0E0;
+            border-color: #E0E0E0;
+        }
+        .form-check-input:checked {
+            background-color: #A52A2A;
+            border-color: #A52A2A;
+        }
+        /* Alert styles */
+        .alert-info {
+            background-color: rgba(23, 162, 184, 0.2);
+        }
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.2);
+        }
+        .alert-success {
+            background-color: rgba(41, 148, 66, 0.2);
+        }
+        /* Text colors */
+        .text-brown {
+            color: #A52A2A;
+        }
+        .text-brown:hover {
+            color: #8B4513;
+        }
+        /* List group styles */
+        .list-group-item {
+            background-color: #333333;
+            color: #E0E0E0;
+            border: 1px solid #444444;
+        }
+        .list-group-item:hover {
+            background-color: #444444;
+            color: #E0E0E0;
+        }
+        /* Badge styles */
+        .badge {
+            color: #E0E0E0;
+        }
+        .bg-info {
+            background-color: #2A5B7A !important;
+        }
+        .bg-primary {
+            background-color: #A52A2A !important;
+        }
+        /* Breadcrumb styles */
+        .breadcrumb {
+            background-color: #333333;
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem;
+        }
+        .breadcrumb-item {
+            color: #E0E0E0;
+        }
+        .breadcrumb-item.active {
+            color: #A52A2A;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: #666666;
+        }
+        /* Table styles */
+        .table {
+            color: #E0E0E0;
+        }
+        .table td, .table th {
+            border-color: #444444;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #444444;
+            color: #E0E0E0;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('auth.index') }}">Quiz Master</a>
+            <a class="navbar-brand" href="{{ url_for('auth.index') }}">
+                <span style="border-radius: 10px; padding: 5px;">Quiz Master</span>
+            </a>
             {% if session.get('user_id') %}
             <div class="navbar-nav">
                 <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
