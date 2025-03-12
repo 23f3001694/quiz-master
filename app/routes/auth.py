@@ -24,6 +24,7 @@ def login():
         if user and check_password(user.password, password):
             session['user_id'] = user.id
             session['user_type'] = user_type
+            session['username'] = user.username
             if hasattr(user, 'email'):
                 session['email'] = user.email
             

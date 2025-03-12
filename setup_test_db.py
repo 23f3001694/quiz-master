@@ -93,7 +93,8 @@ def setup_test_db():
             end_time=time((current_time.hour + 1) % 24, 0),
             time_duration="60 mins"
         )
-        
+
+
         # Quiz 2: Available later today
         quiz2 = Quiz(
             chapter_id=geometry.id,
@@ -122,11 +123,83 @@ def setup_test_db():
             end_time=time(16, 0),
             time_duration="120 mins"
         )
+
+        # Quiz 5: Available now (current date, current time + 1 hour) for Science - Physics
+        quiz5 = Quiz(
+            chapter_id=physics.id,
+            date_of_quiz=datetime.combine(today, time(0, 0)),
+            start_time=time(current_time.hour, 0),
+            end_time=time((current_time.hour + 1) % 24, 0),
+            time_duration="60 mins"
+        )
         
+        # Quiz 6: Available now (current date, current time + 1 hour) for Science - Chemistry
+        quiz6 = Quiz(
+            chapter_id=chemistry.id,
+            date_of_quiz=datetime.combine(today, time(0, 0)),
+            start_time=time(current_time.hour, 0),
+            end_time=time((current_time.hour + 1) % 24, 0),
+            time_duration="60 mins"
+        )
+
+        # Quiz 7: Available later today for Mathematics - Algebra
+        quiz7 = Quiz(
+            chapter_id=algebra.id,
+            date_of_quiz=datetime.combine(today, time(0, 0)),
+            start_time=time((current_time.hour + 4) % 24, 0),
+            end_time=time((current_time.hour + 5) % 24, 0),
+            time_duration="60 mins"
+        )
+
+        # Quiz 8: Available tomorrow for Mathematics - Geometry
+        quiz8 = Quiz(
+            chapter_id=geometry.id,
+            date_of_quiz=datetime.combine(tomorrow, time(0, 0)),
+            start_time=time(14, 0),
+            end_time=time(16, 0),
+            time_duration="120 mins"
+        )
+
+        # Quiz 9: Available tomorrow for Science - Chemistry
+        quiz9 = Quiz(
+            chapter_id=chemistry.id,
+            date_of_quiz=datetime.combine(tomorrow, time(0, 0)),
+            start_time=time(16, 0),
+            end_time=time(18, 0),
+            time_duration="120 mins"
+        )
+
+        # Quiz 10: Expired (2 days ago) for Mathematics - Algebra
+        two_days_ago = today - timedelta(days=2)
+        quiz10 = Quiz(
+            chapter_id=algebra.id,
+            date_of_quiz=datetime.combine(two_days_ago, time(0, 0)),
+            start_time=time(10, 0),
+            end_time=time(12, 0),
+            time_duration="120 mins"
+        )
+
+        # Quiz 11: Expired (3 days ago) for Science - Physics
+        three_days_ago = today - timedelta(days=3)
+        quiz11 = Quiz(
+            chapter_id=physics.id,
+            date_of_quiz=datetime.combine(three_days_ago, time(0, 0)),
+            start_time=time(15, 0),
+            end_time=time(17, 0),
+            time_duration="120 mins"
+        )
+
         db.session.add(quiz1)
         db.session.add(quiz2)
         db.session.add(quiz3)
         db.session.add(quiz4)
+        db.session.add(quiz5)
+        db.session.add(quiz6)
+        db.session.add(quiz7)
+        db.session.add(quiz8)
+        db.session.add(quiz9)
+        db.session.add(quiz10)
+        db.session.add(quiz11)
         db.session.commit()
         
         # Add questions to quizzes
@@ -223,9 +296,221 @@ def setup_test_db():
             )
         ]
         
-        for q in questions1 + questions2 + questions3 + questions4:
+        questions5 = [
+            Question(
+                quiz_id=quiz5.id,
+                question_statement="What is the speed of light in a vacuum?",
+                option1="3 x 10^8 m/s",
+                option2="3 x 10^6 m/s",
+                option3="3 x 10^5 m/s",
+                option4="3 x 10^7 m/s",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz5.id,
+                question_statement="What is the formula for kinetic energy?",
+                option1="KE = mv^2",
+                option2="KE = 1/2 mv^2",
+                option3="KE = 1/2 mv",
+                option4="KE = mv",
+                correct_option=2
+            )
+        ]
+        
+        questions6 = [
+            Question(
+                quiz_id=quiz6.id,
+                question_statement="What is the atomic number of carbon?",
+                option1="6",
+                option2="12",
+                option3="14",
+                option4="16",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz6.id,
+                question_statement="What is the chemical formula for water?",
+                option1="H2O",
+                option2="CO2",
+                option3="O2",
+                option4="H2",
+                correct_option=1
+            )
+        ]
+        
+        # Questions for Quiz 7 (Advanced Algebra)
+        questions7 = [
+            Question(
+                quiz_id=quiz7.id,
+                question_statement="What is the solution to the quadratic equation x² - 4x + 4 = 0?",
+                option1="x = 2",
+                option2="x = -2",
+                option3="x = 2, x = -2",
+                option4="x = 2 (double root)",
+                correct_option=4
+            ),
+            Question(
+                quiz_id=quiz7.id,
+                question_statement="If a + b = 5 and ab = 6, what is a² + b²?",
+                option1="13",
+                option2="25",
+                option3="11",
+                option4="17",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz7.id,
+                question_statement="What is the sum of the first 10 terms of an arithmetic sequence with a₁ = 2 and d = 3?",
+                option1="155",
+                option2="165",
+                option3="175",
+                option4="185",
+                correct_option=2
+            )
+        ]
+
+        # Questions for Quiz 8 (Advanced Geometry)
+        questions8 = [
+            Question(
+                quiz_id=quiz8.id,
+                question_statement="What is the volume of a sphere with radius 3 units?",
+                option1="36π cubic units",
+                option2="108π cubic units",
+                option3="9π cubic units",
+                option4="72π cubic units",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz8.id,
+                question_statement="In a right triangle, if one angle is 30°, what is the ratio of the shortest side to the hypotenuse?",
+                option1="1:1",
+                option2="1:2",
+                option3="1:3",
+                option4="2:3",
+                correct_option=2
+            ),
+            Question(
+                quiz_id=quiz8.id,
+                question_statement="What is the area of a regular hexagon with side length 4 units?",
+                option1="24√3 square units",
+                option2="48 square units",
+                option3="16√3 square units",
+                option4="32 square units",
+                correct_option=1
+            )
+        ]
+
+        # Questions for Quiz 9 (Advanced Chemistry)
+        questions9 = [
+            Question(
+                quiz_id=quiz9.id,
+                question_statement="What is the molecular mass of glucose (C₆H₁₂O₆)?",
+                option1="180 g/mol",
+                option2="186 g/mol",
+                option3="172 g/mol",
+                option4="192 g/mol",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz9.id,
+                question_statement="Which quantum number determines the shape of an orbital?",
+                option1="Principal quantum number",
+                option2="Angular momentum quantum number",
+                option3="Magnetic quantum number",
+                option4="Spin quantum number",
+                correct_option=2
+            ),
+            Question(
+                quiz_id=quiz9.id,
+                question_statement="What is the hybridization of carbon in ethene (C₂H₄)?",
+                option1="sp",
+                option2="sp²",
+                option3="sp³",
+                option4="sp³d",
+                correct_option=2
+            )
+        ]
+
+        # Questions for Quiz 10 (Expired - Basic Algebra Review)
+        questions10 = [
+            Question(
+                quiz_id=quiz10.id,
+                question_statement="Simplify: (x² + 2x + 1) - (x² - 2x + 1)",
+                option1="4x",
+                option2="2x",
+                option3="0",
+                option4="4x + 2",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz10.id,
+                question_statement="Factor completely: x² - 4",
+                option1="(x + 2)(x - 2)",
+                option2="(x + 2)²",
+                option3="(x - 2)²",
+                option4="x(x - 4)",
+                correct_option=1
+            )
+        ]
+
+        # Questions for Quiz 11 (Expired - Basic Physics Review)
+        questions11 = [
+            Question(
+                quiz_id=quiz11.id,
+                question_statement="What is the acceleration due to gravity on Earth (approximate)?",
+                option1="9.8 m/s²",
+                option2="8.9 m/s²",
+                option3="10.0 m/s²",
+                option4="7.8 m/s²",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz11.id,
+                question_statement="Which of these is NOT a vector quantity?",
+                option1="Velocity",
+                option2="Force",
+                option3="Temperature",
+                option4="Acceleration",
+                correct_option=3
+            )
+        ]
+
+        for q in questions1 + questions2 + questions3 + questions4 + questions5 + questions6 + questions7 + questions8 + questions9 + questions10 + questions11:
             db.session.add(q)
         
+        db.session.commit()
+        
+        # Add scores for expired quizzes
+        # Get the test user
+        test_user = User.query.filter_by(username="testuser").first()
+        
+        # Score for Quiz 4 (Chemistry quiz from yesterday)
+        score4 = Score(
+            user_id=test_user.id,
+            quiz_id=quiz4.id,
+            total_score=1,  # Got 1 out of 2 questions correct
+            max_score=2,
+        )
+        
+        # Score for Quiz 10 (Algebra quiz from 2 days ago)
+        score10 = Score(
+            user_id=test_user.id,
+            quiz_id=quiz10.id,
+            total_score=2,  # Got both questions correct
+            max_score=2,
+        )
+        
+        # Score for Quiz 11 (Physics quiz from 3 days ago)
+        score11 = Score(
+            user_id=test_user.id,
+            quiz_id=quiz11.id,
+            total_score=1,  # Got 1 out of 2 questions correct
+            max_score=2,
+        )
+        
+        db.session.add(score4)
+        db.session.add(score10)
+        db.session.add(score11)
         db.session.commit()
         
         print("Database setup complete!")
@@ -234,6 +519,13 @@ def setup_test_db():
         print(f"Quiz 2 (Available later today): {today} from {quiz2.start_time} to {quiz2.end_time}")
         print(f"Quiz 3 (Available tomorrow): {tomorrow} from {quiz3.start_time} to {quiz3.end_time}")
         print(f"Quiz 4 (Expired): {yesterday} from {quiz4.start_time} to {quiz4.end_time}")
+        print(f"Quiz 5 (Available now): {today} from {quiz5.start_time} to {quiz5.end_time}")
+        print(f"Quiz 6 (Available now): {today} from {quiz6.start_time} to {quiz6.end_time}")
+        print(f"Quiz 7 (Available later today): {today} from {quiz7.start_time} to {quiz7.end_time}")
+        print(f"Quiz 8 (Available tomorrow): {tomorrow} from {quiz8.start_time} to {quiz8.end_time}")
+        print(f"Quiz 9 (Available tomorrow): {tomorrow} from {quiz9.start_time} to {quiz9.end_time}")
+        print(f"Quiz 10 (Expired): {two_days_ago} from {quiz10.start_time} to {quiz10.end_time}")
+        print(f"Quiz 11 (Expired): {three_days_ago} from {quiz11.start_time} to {quiz11.end_time}")
         print("\nLogin credentials:")
         print("Admin - Username: admin, Password: password")
         print("User - Username: testuser, Password: password")
