@@ -18,15 +18,6 @@
             Add New Question
         </a>
     </div>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-info mb-4">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
     <div class="d-flex flex-column gap-4">
         {% for question in questions %}
         <div class="card">

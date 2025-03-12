@@ -14,15 +14,6 @@
             Add New Subject
         </a>
     </div>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-info mb-4">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
     <div class="row g-4">
         {% for subject in subjects %}
         <div class="col-md-4">

@@ -18,14 +18,6 @@
         </a>
     </div>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-info mb-4">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
     <div class="row g-4">
         <div class="col-12">
             <div class="card">
