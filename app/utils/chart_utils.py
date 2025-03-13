@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import io
 import base64
 from datetime import datetime, timedelta
-import numpy as np
 
 def get_base64_chart(fig):
     """Convert matplotlib figure to base64 string for HTML embedding"""
