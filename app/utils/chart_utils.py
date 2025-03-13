@@ -24,25 +24,32 @@ def generate_user_performance_chart(scores):
                 transform=ax.transAxes)
         return get_base64_chart(fig)
     
+    # Sort scores by date to ensure correct chronological order
+    scores = sorted(scores, key=lambda x: x.quiz.date_of_quiz)
+    
     dates = [score.quiz.date_of_quiz for score in scores]
     percentages = []
+    
     for score in scores:
         try:
-            if score.max_score > 0:
-                percentage = (score.total_score / score.max_score * 100)
-            else:
-                percentage = 0
+            percentage = (score.total_score / score.max_score * 100) if score.max_score > 0 else 0
             percentages.append(percentage)
         except (ZeroDivisionError, TypeError):
             percentages.append(0)
     
-    ax.plot(dates, percentages, marker='o')
+    # Create single line plot with connected points
+    ax.plot(dates, percentages, 'b-o', linewidth=2, markersize=6)
+    
     ax.set_title('Performance Over Time')
     ax.set_xlabel('Quiz Date')
     ax.set_ylabel('Score (%)')
     ax.grid(True)
     
+    # Set y-axis limits from 0 to 100
+    ax.set_ylim(0, 100)
+    
     plt.xticks(rotation=45)
+    plt.tight_layout()  # Adjust layout to prevent label cutoff
     
     return get_base64_chart(fig)
 
