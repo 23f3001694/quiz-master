@@ -46,7 +46,7 @@ pip install -r requirements.txt
 
 4. Initialize the database:
 ```bash
-python setup_test_db.py
+python utils/setup_test_db.py
 ```
 
 5. Run the application:
@@ -71,7 +71,8 @@ quiz-master/
 ├── venv/                  # Virtual environment
 ├── app.py                 # Application entry point
 ├── requirements.txt       # Project dependencies
-├── setup_test_db.py      # Database setup script
+├── utils/                 # Utility scripts and functions
+│   └── setup_test_db.py  # Database setup script
 └── Quiz Master API.postman_collection.json  # API documentation
 ```
 
