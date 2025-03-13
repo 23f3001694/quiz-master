@@ -70,9 +70,10 @@ def delete_subject(id):
         db.session.delete(subject)
         db.session.commit()
         flash('Subject deleted successfully!')
-    except:
+    except Exception as e:
         db.session.rollback()
-        flash('Error deleting subject. Please try again.')
+        print(f"Error deleting subject: {str(e)}")  # For server logs
+        flash(f'Error deleting subject: {str(e)}')
     
     return redirect(url_for('admin.manage_subjects'))
 
