@@ -41,6 +41,17 @@ def setup_test_db():
             )
             db.session.add(user)
         
+        user2 = User.query.filter_by(username="testuser2").first()
+        if not user2:
+            user2 = User(
+                username="testuser2",
+                email="test2@example.com",
+                password=generate_password_hash("password"),
+                full_name="Test User 2",    
+                qualification="Student",
+                dob=datetime(2000, 1, 1)
+            )
+            db.session.add(user2)
         db.session.commit()
         
         # Create subjects
@@ -53,6 +64,11 @@ def setup_test_db():
         if not science:
             science = Subject(name="Science", description="Study of the natural world")
             db.session.add(science)
+
+        english = Subject.query.filter_by(name="English").first()
+        if not english:
+            english = Subject(name="English", description="Study of the English language")
+            db.session.add(english)
         
         db.session.commit()
         
@@ -77,6 +93,22 @@ def setup_test_db():
             chemistry = Chapter(subject_id=science.id, name="Chemistry", description="Study of substances and their properties")
             db.session.add(chemistry)
         
+        nouns = Chapter.query.filter_by(name="Nouns").first()
+        if not nouns:
+            nouns = Chapter(subject_id=english.id, name="Nouns", description="Study of nouns")
+            db.session.add(nouns)
+        
+        verbs = Chapter.query.filter_by(name="Verbs").first()   
+        if not verbs:
+            verbs = Chapter(subject_id=english.id, name="Verbs", description="Study of verbs")
+            db.session.add(verbs)
+        
+        adjectives = Chapter.query.filter_by(name="Adjectives").first()
+        if not adjectives:
+            adjectives = Chapter(subject_id=english.id, name="Adjectives", description="Study of adjectives")
+            db.session.add(adjectives)
+        
+            
         db.session.commit()
         
         # Delete existing quizzes to avoid conflicts
@@ -194,6 +226,54 @@ def setup_test_db():
             time_duration=120
         )
 
+        # Quiz 12: Available now (current date, current time + 1 hour) for English - Nouns
+        quiz12 = Quiz(
+            chapter_id=nouns.id,
+            date_of_quiz=datetime.combine(today, time(0, 0)),
+            start_time=time(current_time.hour, 0),
+            end_time=time((current_time.hour + 1) % 24, 0),
+            time_duration=60
+        )
+
+        # Quiz 13: Available now (current date, current time + 1 hour) for English - Verbs
+        quiz13 = Quiz(
+            chapter_id=verbs.id,
+            date_of_quiz=datetime.combine(today, time(0, 0)),   
+            start_time=time(current_time.hour, 0),
+            end_time=time((current_time.hour + 1) % 24, 0),
+            time_duration=60
+        )
+        
+        # Quiz 14: Available later today for English - Adjectives
+        quiz14 = Quiz(
+            chapter_id=adjectives.id,
+            date_of_quiz=datetime.combine(today, time(0, 0)),
+            start_time=time((current_time.hour + 2) % 24, 0),
+            end_time=time((current_time.hour + 3) % 24, 0), 
+            time_duration=60
+        )
+        
+        # Quiz 15: Available tomorrow for English - Nouns
+        quiz15 = Quiz(
+            chapter_id=nouns.id,
+            date_of_quiz=datetime.combine(tomorrow, time(0, 0)),
+            start_time=time(14, 0),
+            end_time=time(16, 0),   
+            time_duration=120
+        )
+        
+        # Quiz 16: Available yesterday for English - Adjectives
+        quiz16 = Quiz(
+            chapter_id=adjectives.id,
+            date_of_quiz=datetime.combine(yesterday, time(0, 0)),
+            start_time=time(10, 0),
+            end_time=time(12, 0),
+            time_duration=120
+        )
+        
+        
+        
+        
         db.session.add(quiz1)
         db.session.add(quiz2)
         db.session.add(quiz3)
@@ -205,6 +285,11 @@ def setup_test_db():
         db.session.add(quiz9)
         db.session.add(quiz10)
         db.session.add(quiz11)
+        db.session.add(quiz12)
+        db.session.add(quiz13)
+        db.session.add(quiz14)
+        db.session.add(quiz15)
+        db.session.add(quiz16)
         db.session.commit()
         
         # Add questions to quizzes
@@ -480,7 +565,117 @@ def setup_test_db():
             )
         ]
 
-        for q in questions1 + questions2 + questions3 + questions4 + questions5 + questions6 + questions7 + questions8 + questions9 + questions10 + questions11:
+        # Questions for Quiz 12 (Available now - English - Nouns)
+        questions12 = [
+            Question(
+                quiz_id=quiz12.id,
+                question_statement="Which of the following is a proper noun?",
+                option1="city",
+                option2="London",
+                option3="car",
+                option4="tree",
+                correct_option=2
+            ),
+            Question(
+                quiz_id=quiz12.id,
+                question_statement="Identify the noun in the sentence: 'The cat sat on the mat.'",
+                option1="cat",
+                option2="sat",
+                option3="on",
+                option4="the",
+                correct_option=1
+            )
+        ]
+
+        # Questions for Quiz 13 (Available now - English - Verbs)
+        questions13 = [
+            Question(
+                quiz_id=quiz13.id,
+                question_statement="Which of the following is a verb?",
+                option1="run",
+                option2="quickly",
+                option3="beautiful",
+                option4="happiness",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz13.id,
+                question_statement="Identify the verb in the sentence: 'She sings beautifully.'",
+                option1="She",
+                option2="sings",
+                option3="beautifully",
+                option4="the",
+                correct_option=2
+            )
+        ]
+
+        # Questions for Quiz 14 (Available later today - English - Adjectives)
+        questions14 = [
+            Question(
+                quiz_id=quiz14.id,
+                question_statement="Which of the following is an adjective?",
+                option1="happy",
+                option2="run",
+                option3="quickly",
+                option4="happiness",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz14.id,
+                question_statement="Identify the adjective in the sentence: 'The quick brown fox jumps over the lazy dog.'",
+                option1="quick",
+                option2="fox",
+                option3="jumps",
+                option4="over",
+                correct_option=1
+            )
+        ]
+
+        # Questions for Quiz 15 (Available tomorrow - English - Nouns)
+        questions15 = [
+            Question(
+                quiz_id=quiz15.id,
+                question_statement="Which of the following is a common noun?",
+                option1="dog",
+                option2="Fido",
+                option3="London",
+                option4="Monday",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz15.id,
+                question_statement="Identify the noun in the sentence: 'The children are playing in the park.'",
+                option1="children",
+                option2="are",
+                option3="playing",
+                option4="in",
+                correct_option=1
+            )
+        ]
+
+        # Questions for Quiz 16 (Available yesterday - English - Adjectives)
+        questions16 = [
+            Question(
+                quiz_id=quiz16.id,
+                question_statement="Which of the following is an adjective?",
+                option1="blue",
+                option2="run",
+                option3="quickly",
+                option4="happiness",
+                correct_option=1
+            ),
+            Question(
+                quiz_id=quiz16.id,
+                question_statement="Identify the adjective in the sentence: 'The tall man walked slowly.'",
+                option1="tall",
+                option2="man",
+                option3="walked",
+                option4="slowly",
+                correct_option=1
+            )
+        ]
+        
+        for q in questions1 + questions2 + questions3 + questions4 + questions5 + questions6 + questions7 + questions8 + questions9 + questions10 + questions11 + questions12 + questions13 + questions14 + questions15 + questions16:
             db.session.add(q)
         
         db.session.commit()
@@ -512,12 +707,94 @@ def setup_test_db():
             total_score=1,  # Got 1 out of 2 questions correct
             max_score=2,
         )
+
+        # Score for Quiz 12 (English - Nouns)
+        score12 = Score(
+            user_id=test_user.id,
+            quiz_id=quiz12.id,
+            total_score=2,  # Got both questions correct
+            max_score=2,   
+        )
+
+        test_user2 = User.query.filter_by(username="testuser2").first()
+
+        # Score for Quiz 13 (English - Verbs)
+        score13 = Score(
+            user_id=test_user.id,
+            quiz_id=quiz13.id,
+            total_score=1,  # Got 1 out of 2 questions correct
+            max_score=2,
+        )
+
+        # Score for Quiz 16 (English - Adjectives)
+        score16 = Score(
+            user_id=test_user.id,
+            quiz_id=quiz16.id,
+            total_score=2,  # Got both questions correct
+            max_score=2,
+        )
+
+        # Score for Quiz 4 (Chemistry quiz from yesterday) for test_user2
+        score4_user2 = Score(
+            user_id=test_user2.id,
+            quiz_id=quiz4.id,
+            total_score=1,  # Got 1 out of 2 questions correct
+            max_score=2,
+        )
+
+        # Score for Quiz 10 (Algebra quiz from 2 days ago) for test_user2
+        score10_user2 = Score(
+            user_id=test_user2.id,
+            quiz_id=quiz10.id,
+            total_score=2,  # Got both questions correct
+            max_score=2,
+        )
+
+        # Score for Quiz 11 (Physics quiz from 3 days ago) for test_user2
+        score11_user2 = Score(
+            user_id=test_user2.id,
+            quiz_id=quiz11.id,
+            total_score=1,  # Got 1 out of 2 questions correct
+            max_score=2,
+        )
+
+        # Score for Quiz 12 (English - Nouns) for test_user2
+        score12_user2 = Score(
+            user_id=test_user2.id,
+            quiz_id=quiz12.id,
+            total_score=2,  # Got both questions correct
+            max_score=2,
+        )
+
+        # Score for Quiz 13 (English - Verbs) for test_user2
+        score13_user2 = Score(
+            user_id=test_user2.id,
+            quiz_id=quiz13.id,
+            total_score=1,  # Got 1 out of 2 questions correct
+            max_score=2,
+        )
+
+        # Score for Quiz 16 (English - Adjectives) for test_user2
+        score16_user2 = Score(
+            user_id=test_user2.id,
+            quiz_id=quiz16.id,
+            total_score=2,  # Got both questions correct
+            max_score=2,
+        )
         
         db.session.add(score4)
         db.session.add(score10)
         db.session.add(score11)
+        db.session.add(score12)
+        db.session.add(score13)
+        db.session.add(score16)
+        db.session.add(score4_user2)
+        db.session.add(score10_user2)
+        db.session.add(score11_user2)
+        db.session.add(score12_user2)
+        db.session.add(score13_user2)
+        db.session.add(score16_user2)
         db.session.commit()
-        
         print("Database setup complete!")
         print(f"Current time: {now}")
         print(f"Quiz 1 (Available now): {today} from {quiz1.start_time} to {quiz1.end_time}")
@@ -531,9 +808,15 @@ def setup_test_db():
         print(f"Quiz 9 (Available tomorrow): {tomorrow} from {quiz9.start_time} to {quiz9.end_time}")
         print(f"Quiz 10 (Expired): {two_days_ago} from {quiz10.start_time} to {quiz10.end_time}")
         print(f"Quiz 11 (Expired): {three_days_ago} from {quiz11.start_time} to {quiz11.end_time}")
+        print(f"Quiz 12 (Available now): {today} from {quiz12.start_time} to {quiz12.end_time}")
+        print(f"Quiz 13 (Available now): {today} from {quiz13.start_time} to {quiz13.end_time}")
+        print(f"Quiz 14 (Available later today): {today} from {quiz14.start_time} to {quiz14.end_time}")
+        print(f"Quiz 15 (Available tomorrow): {tomorrow} from {quiz15.start_time} to {quiz15.end_time}")
+        print(f"Quiz 16 (Available yesterday): {yesterday} from {quiz16.start_time} to {quiz16.end_time}")
         print("\nLogin credentials:")
         print("Admin - Username: admin, Password: password")
         print("User - Username: testuser, Password: password")
+        print("User2 - Username: testuser2, Password: password")
 
 if __name__ == "__main__":
     setup_test_db() 
