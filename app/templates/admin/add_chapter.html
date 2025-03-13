@@ -18,7 +18,7 @@
             <h2 class="mb-0">Add New Chapter to {{ subject.name }}</h2>
         </div>
         <div class="card-body p-4">
-            <form method="POST" action="{{ url_for('admin.manage_chapters', subject_id=subject.id) }}">
+            <form method="POST" action="{{ url_for('admin.add_chapter', subject_id=subject.id) }}">
                 <div class="mb-4">
                     <label for="name" class="form-label">Chapter Name</label>
                     <input type="text" class="form-control" id="name" name="name" required>

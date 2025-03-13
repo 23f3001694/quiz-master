@@ -27,6 +27,23 @@
                     <p class="mb-2"><strong>Email:</strong></p>
                     <p class="mb-4">{{ user.email }}</p>
                 </div>
+                <div class="col-md-6">
+                    <p class="mb-2"><strong>Total Quizzes Attempted:</strong></p>
+                    <p class="mb-4">{{ user.scores|length }}</p>
+
+                    <p class="mb-2"><strong>Average Score:</strong></p>
+                    <p class="mb-4">
+                        {% if user.scores %}
+                        {% set total = namespace(value=0) %}
+                        {% for score in user.scores %}
+                        {% set total.value = total.value + (score.total_score / score.max_score * 100) %}
+                        {% endfor %}
+                        {{ "%.1f"|format(total.value / user.scores|length) }}%
+                        {% else %}
+                        No quizzes attempted
+                        {% endif %}
+                    </p>
+                </div>
             </div>
 
             <div class="d-flex gap-2">
@@ -37,34 +54,51 @@
         </div>
     </div>
 
-    {% if user_quizzes %}
+    {% if user.scores %}
     <div class="card mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h3 class="h5 mb-0">Quiz History</h3>
+            <span class="badge bg-primary">{{ user.scores|length }} Quizzes</span>
         </div>
         <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th class="py-3">Quiz</th>
-                            <th class="py-3">Date</th>
+                            <th class="py-3">Subject</th>
+                            <th class="py-3">Chapter</th>
+                            <th class="py-3">Quiz Date</th>
                             <th class="py-3">Score</th>
-                            <th class="py-3">Actions</th>
+                            <th class="py-3">Percentage</th>
+                            <th class="py-3">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for quiz in user_quizzes %}
+                        {% for score in user.scores|sort(attribute='id', reverse=true) %}
                         <tr>
-                            <td class="py-3">{{ quiz.title }}</td>
-                            <td class="py-3">{{ quiz.date }}</td>
-                            <td class="py-3">{{ quiz.score }}</td>
+                            <td class="py-3">{{ score.quiz.chapter.subject.name }}</td>
+                            <td class="py-3">{{ score.quiz.chapter.name }}</td>
+                            <td class="py-3">{{ score.quiz.date_of_quiz.strftime('%Y-%m-%d') }}</td>
+                            <td class="py-3">{{ score.total_score }} / {{ score.max_score }}</td>
+                            <td class="py-3">{{ "%.1f"|format(score.total_score / score.max_score * 100) }}%</td>
+                            <td class="py-3">
+                                {% if (score.total_score / score.max_score * 100) >= 70 %}
+                                <span class="badge bg-success">Passed</span>
+                                {% else %}
+                                <span class="badge bg-warning">Needs Improvement</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h4 class="alert-heading">No Quizzes Attempted</h4>
+        <p class="mb-0">This user hasn't attempted any quizzes yet.</p>
     </div>
     {% endif %}
 </div>
