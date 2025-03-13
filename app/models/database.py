@@ -90,7 +90,7 @@ class Quiz(db.Model):
         date_of_quiz (DateTime): Date when the quiz is scheduled
         start_time (Time): Quiz start time
         end_time (Time): Quiz end time
-        time_duration (str): Duration of the quiz
+        time_duration (int): Duration of the quiz in minutes
         questions (relationship): One-to-many relationship with Question model
         scores (relationship): One-to-many relationship with Score model
     """
@@ -99,7 +99,7 @@ class Quiz(db.Model):
     date_of_quiz = db.Column(db.DateTime, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
-    time_duration = db.Column(db.String(10))
+    time_duration = db.Column(db.Integer, nullable=False)
     questions = db.relationship('Question', backref='quiz', lazy=True, cascade='all, delete-orphan')
     scores = db.relationship('Score', backref='quiz', lazy=True, cascade='all, delete-orphan')
 

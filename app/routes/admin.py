@@ -287,6 +287,15 @@ def add_quiz(chapter_id):
         start_time = datetime.strptime(start_time_str, '%H:%M').time()
         end_time = datetime.strptime(end_time_str, '%H:%M').time()
         
+        try:
+            time_duration = int(time_duration)
+            if time_duration <= 0:
+                flash('Duration must be a positive number', 'error')
+                return redirect(url_for('admin.add_quiz', chapter_id=chapter_id))
+        except ValueError:
+            flash('Duration must be a valid number', 'error')
+            return redirect(url_for('admin.add_quiz', chapter_id=chapter_id))
+        
         quiz = Quiz(
             chapter_id=chapter_id, 
             date_of_quiz=date_of_quiz, 
@@ -325,7 +334,7 @@ def edit_quiz(id):
     quiz = Quiz.query.get_or_404(id)
     if request.method == 'POST':
         quiz.date_of_quiz = datetime.strptime(request.form['date_of_quiz'], '%Y-%m-%d')
-        quiz.time_duration = request.form['time_duration']
+        time_duration = request.form['time_duration']
         
         start_time_str = request.form['start_time']
         end_time_str = request.form['end_time']
@@ -334,12 +343,17 @@ def edit_quiz(id):
         quiz.end_time = datetime.strptime(end_time_str, '%H:%M').time()
         
         try:
+            time_duration = int(time_duration)
+            if time_duration <= 0:
+                flash('Duration must be a positive number', 'error')
+                return redirect(url_for('admin.edit_quiz', quiz_id=id))
+            quiz.time_duration = time_duration
             db.session.commit()
             flash('Quiz updated successfully!')
             return redirect(url_for('admin.manage_quizzes', chapter_id=quiz.chapter_id))
-        except:
-            db.session.rollback()
-            flash('Error updating quiz. Please try again.')
+        except ValueError:
+            flash('Duration must be a valid number', 'error')
+            return redirect(url_for('admin.edit_quiz', quiz_id=id))
     
     return render_template('admin/edit_quiz.html', quiz=quiz)
 

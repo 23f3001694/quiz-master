@@ -54,15 +54,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Parse quiz duration from the server (assuming format like "60 mins" or "2 hours")
-        const durationStr = "{{ quiz.time_duration }}";
-        let durationMinutes = 0;
-        
-        if (durationStr.includes('hour')) {
-            durationMinutes = parseInt(durationStr) * 60;
-        } else if (durationStr.includes('min')) {
-            durationMinutes = parseInt(durationStr);
-        }
+        // Get quiz duration in minutes directly from the server
+        const durationMinutes = parseInt("{{ quiz.time_duration }}");
         
         // Set quiz start time when page loads
         const quizStartTime = new Date();

@@ -91,7 +91,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(today, time(0, 0)),
             start_time=time(current_time.hour, 0),
             end_time=time((current_time.hour + 1) % 24, 0),
-            time_duration="60 mins"
+            time_duration=60
         )
 
 
@@ -101,7 +101,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(today, time(0, 0)),
             start_time=time((current_time.hour + 2) % 24, 0),
             end_time=time((current_time.hour + 3) % 24, 0),
-            time_duration="60 mins"
+            time_duration=60
         )
         
         # Quiz 3: Available tomorrow
@@ -111,7 +111,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(tomorrow, time(0, 0)),
             start_time=time(10, 0),
             end_time=time(12, 0),
-            time_duration="120 mins"
+            time_duration=120
         )
         
         # Quiz 4: Available yesterday (expired)
@@ -121,7 +121,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(yesterday, time(0, 0)),
             start_time=time(14, 0),
             end_time=time(16, 0),
-            time_duration="120 mins"
+            time_duration=120
         )
 
         # Quiz 5: Available now (current date, current time + 1 hour) for Science - Physics
@@ -130,7 +130,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(today, time(0, 0)),
             start_time=time(current_time.hour, 0),
             end_time=time((current_time.hour + 1) % 24, 0),
-            time_duration="60 mins"
+            time_duration=60
         )
         
         # Quiz 6: Available now (current date, current time + 1 hour) for Science - Chemistry
@@ -139,7 +139,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(today, time(0, 0)),
             start_time=time(current_time.hour, 0),
             end_time=time((current_time.hour + 1) % 24, 0),
-            time_duration="60 mins"
+            time_duration=60
         )
 
         # Quiz 7: Available later today for Mathematics - Algebra
@@ -148,7 +148,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(today, time(0, 0)),
             start_time=time((current_time.hour + 4) % 24, 0),
             end_time=time((current_time.hour + 5) % 24, 0),
-            time_duration="60 mins"
+            time_duration=60
         )
 
         # Quiz 8: Available tomorrow for Mathematics - Geometry
@@ -157,7 +157,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(tomorrow, time(0, 0)),
             start_time=time(14, 0),
             end_time=time(16, 0),
-            time_duration="120 mins"
+            time_duration=120
         )
 
         # Quiz 9: Available tomorrow for Science - Chemistry
@@ -166,7 +166,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(tomorrow, time(0, 0)),
             start_time=time(16, 0),
             end_time=time(18, 0),
-            time_duration="120 mins"
+            time_duration=120
         )
 
         # Quiz 10: Expired (2 days ago) for Mathematics - Algebra
@@ -176,7 +176,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(two_days_ago, time(0, 0)),
             start_time=time(10, 0),
             end_time=time(12, 0),
-            time_duration="120 mins"
+            time_duration=120
         )
 
         # Quiz 11: Expired (3 days ago) for Science - Physics
@@ -186,7 +186,7 @@ def setup_test_db():
             date_of_quiz=datetime.combine(three_days_ago, time(0, 0)),
             start_time=time(15, 0),
             end_time=time(17, 0),
-            time_duration="120 mins"
+            time_duration=120
         )
 
         db.session.add(quiz1)

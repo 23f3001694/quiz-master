@@ -61,7 +61,7 @@
                         <tr>
                             <td class="py-3">{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</td>
                             <td class="py-3">{{ quiz.start_time.strftime('%H:%M') }} - {{ quiz.end_time.strftime('%H:%M') }}</td>
-                            <td class="py-3">{{ quiz.time_duration }}</td>
+                            <td class="py-3">{{ quiz.time_duration }} minutes</td>
                             <td class="py-3">{{ quiz.questions|length }}</td>
                             <td class="py-3">
                                 <div class="d-flex gap-2">

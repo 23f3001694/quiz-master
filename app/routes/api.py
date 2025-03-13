@@ -466,7 +466,7 @@ def create_quiz():
                 duration_mins = int(time_duration)
                 if duration_mins <= 0:
                     return jsonify({'error': 'time_duration must be a positive number'}), 400
-                time_duration = f"{duration_mins} mins"
+                time_duration = duration_mins
             except ValueError:
                 return jsonify({'error': 'time_duration must be a valid number'}), 400
         
@@ -568,7 +568,7 @@ def update_quiz(quiz_id):
                 duration_mins = int(time_duration)
                 if duration_mins <= 0:
                     return jsonify({'error': 'time_duration must be a positive number'}), 400
-                quiz.time_duration = f"{duration_mins} mins"
+                quiz.time_duration = duration_mins
             except ValueError:
                 return jsonify({'error': 'time_duration must be a valid number'}), 400
         

@@ -39,7 +39,7 @@
             <div class="card h-100">
                 <div class="card-body p-4">
                     <h5 class="card-title mb-3">Quiz on {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</h5>
-                    <p class="card-text mb-2">Duration: {{ quiz.time_duration }}</p>
+                    <p class="card-text mb-2">Duration: {{ quiz.time_duration }} minutes</p>
                     <p class="card-text mb-4">Questions: {{ quiz.questions|length }}</p>
                     <div class="d-flex flex-column gap-2">
                         <a href="{{ url_for('admin.manage_questions', quiz_id=quiz.id) }}" class="btn btn-info w-100">Manage Questions</a>

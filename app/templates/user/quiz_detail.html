@@ -18,7 +18,7 @@
             <h5 class="card-title mb-4">Chapter: {{ quiz.chapter.name }}</h5>
             <div class="card p-3 mb-4">
                 <p class="card-text mb-0">
-                    <strong>Duration:</strong> {{ quiz.time_duration }}<br>
+                    <strong>Duration:</strong> {{ quiz.time_duration }} minutes<br>
                     <strong>Date:</strong> {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}<br>
                     <strong>Available Time:</strong> {{ quiz.start_time.strftime('%H:%M') }} - {{ quiz.end_time.strftime('%H:%M') }}<br>
                     <strong>Total Questions:</strong> {{ quiz.questions|length }}
