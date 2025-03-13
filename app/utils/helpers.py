@@ -6,10 +6,12 @@ from datetime import datetime, date
 from sqlalchemy import or_
 
 def is_valid_email(email):
+    """Check if an email is valid"""
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email) is not None
 
 def admin_required(f):
+    """Check if the user is an admin"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session or session.get('user_type') != 'admin':
@@ -18,6 +20,7 @@ def admin_required(f):
     return decorated_function
 
 def user_required(f):
+    """Check if the user is a user"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session or session.get('user_type') != 'user':

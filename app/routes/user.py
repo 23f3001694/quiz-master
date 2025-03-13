@@ -2,14 +2,18 @@ from flask import Blueprint, render_template, session, redirect, url_for, reques
 from app.models.database import User, Subject, Chapter, Quiz, Question, Score, db
 from app.utils.helpers import user_required, is_quiz_available, search_subjects, search_quizzes, format_datetime, calculate_score_statistics, get_subject_scores, calculate_percentage
 from app.utils.chart_utils import generate_user_performance_chart, generate_subject_performance_chart
-from datetime import datetime
-from sqlalchemy import or_
 
 user = Blueprint('user', __name__, url_prefix='/user')
 
 @user.route('/dashboard')
 @user_required
 def dashboard():
+    """
+    Display the user dashboard with available subjects.
+    
+    Returns:
+        rendered template: Dashboard view with user information and list of subjects
+    """
     user = User.query.get(session['user_id'])
     subjects = Subject.query.all()
     return render_template('user/dashboard.html', user=user, subjects=subjects)
@@ -17,6 +21,18 @@ def dashboard():
 @user.route('/subject/<int:subject_id>')
 @user_required
 def view_subject(subject_id):
+    """
+    Display details of a specific subject and track attempted quizzes.
+    
+    Args:
+        subject_id (int): ID of the subject to view
+    
+    Returns:
+        rendered template: Subject detail view with attempted quiz information
+    
+    Raises:
+        404: If subject is not found
+    """
     subject = Subject.query.get_or_404(subject_id)
     user_scores = Score.query.filter_by(user_id=session['user_id']).all()
     attempted_quiz_ids = {score.quiz_id for score in user_scores}
@@ -27,6 +43,18 @@ def view_subject(subject_id):
 @user.route('/quiz/<int:quiz_id>')
 @user_required
 def quiz_detail(quiz_id):
+    """
+    Display details of a specific quiz including availability and previous attempts.
+    
+    Args:
+        quiz_id (int): ID of the quiz to view
+    
+    Returns:
+        rendered template: Quiz detail view with availability status and previous score
+    
+    Raises:
+        404: If quiz is not found
+    """
     quiz = Quiz.query.get_or_404(quiz_id)
     existing_score = Score.query.filter_by(user_id=session['user_id'], quiz_id=quiz_id).first()
     
@@ -41,6 +69,19 @@ def quiz_detail(quiz_id):
 @user.route('/quiz/<int:quiz_id>/attempt', methods=['GET', 'POST'])
 @user_required
 def attempt_quiz(quiz_id):
+    """
+    Handle quiz attempt submission and display quiz questions.
+    
+    Args:
+        quiz_id (int): ID of the quiz to attempt
+    
+    Returns:
+        GET: rendered template with quiz questions
+        POST: redirect to quiz result page after submission
+    
+    Raises:
+        404: If quiz is not found
+    """
     quiz = Quiz.query.get_or_404(quiz_id)
     
     # Check if the quiz is within the valid timeframe
@@ -78,6 +119,19 @@ def attempt_quiz(quiz_id):
 @user.route('/quiz/<int:quiz_id>/result/<int:score_id>')
 @user_required
 def quiz_result(quiz_id, score_id):
+    """
+    Display the result of a completed quiz attempt.
+    
+    Args:
+        quiz_id (int): ID of the completed quiz
+        score_id (int): ID of the user's score entry
+    
+    Returns:
+        rendered template: Quiz result view with score and percentage
+    
+    Raises:
+        404: If quiz or score is not found
+    """
     quiz = Quiz.query.get_or_404(quiz_id)
     score = Score.query.get_or_404(score_id)
     percentage = calculate_percentage(score.total_score, score.max_score)
@@ -86,6 +140,12 @@ def quiz_result(quiz_id, score_id):
 @user.route('/quiz-summary')
 @user_required
 def quiz_summary():
+    """
+    Display a summary of all quiz attempts and performance statistics.
+    
+    Returns:
+        rendered template: Summary view with performance statistics and charts
+    """
     user_scores = Score.query.filter_by(user_id=session['user_id']).all()
     
     stats = calculate_score_statistics(user_scores)
@@ -108,6 +168,16 @@ def quiz_summary():
 @user.route('/search', methods=['GET'])
 @user_required
 def search():
+    """
+    Search for subjects and quizzes based on user query.
+    
+    Query Parameters:
+        query (str): Search term
+        type (str): Type of search ('all', 'subjects', or 'quizzes')
+    
+    Returns:
+        rendered template: Search results view with matching subjects and/or quizzes
+    """
     query = request.args.get('query', '').strip()
     search_type = request.args.get('type', 'all')
     

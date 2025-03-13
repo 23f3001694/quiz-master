@@ -6,6 +6,12 @@ api = Blueprint('api', __name__, url_prefix='/api')
 
 @api.route('/subjects', methods=['GET'])
 def get_subjects():
+    """Get all subjects.
+    
+    Returns:
+        JSON: A list of all subjects with their id, name, and description.
+        Format: [{'id': int, 'name': str, 'description': str}, ...]
+    """
     subjects = Subject.query.all()
     result = []
     for subject in subjects:
@@ -18,6 +24,18 @@ def get_subjects():
 
 @api.route('/subjects/<int:subject_id>', methods=['GET'])
 def get_subject(subject_id):
+    """Get a specific subject by ID.
+    
+    Args:
+        subject_id (int): The ID of the subject to retrieve.
+    
+    Returns:
+        JSON: Subject details including id, name, and description.
+        Format: {'id': int, 'name': str, 'description': str}
+        
+    Raises:
+        404: If subject is not found.
+    """
     subject = Subject.query.get_or_404(subject_id)
     return jsonify({
         'id': subject.id,
@@ -27,6 +45,21 @@ def get_subject(subject_id):
 
 @api.route('/subjects', methods=['POST'])
 def create_subject():
+    """Create a new subject.
+    
+    Request Body:
+        {
+            'name': str (required),
+            'description': str (optional)
+        }
+    
+    Returns:
+        JSON: The created subject's details.
+        Format: {'id': int, 'name': str, 'description': str}
+        
+    Raises:
+        400: If name is not provided or other validation errors occur.
+    """
     data = request.get_json()
     
     if not data or 'name' not in data:
@@ -52,6 +85,25 @@ def create_subject():
 
 @api.route('/subjects/<int:subject_id>', methods=['PUT'])
 def update_subject(subject_id):
+    """Update an existing subject.
+    
+    Args:
+        subject_id (int): The ID of the subject to update.
+    
+    Request Body:
+        {
+            'name': str (optional),
+            'description': str (optional)
+        }
+    
+    Returns:
+        JSON: The updated subject's details.
+        Format: {'id': int, 'name': str, 'description': str}
+        
+    Raises:
+        404: If subject is not found.
+        400: If validation errors occur.
+    """
     subject = Subject.query.get_or_404(subject_id)
     data = request.get_json()
     
@@ -73,6 +125,19 @@ def update_subject(subject_id):
 
 @api.route('/subjects/<int:subject_id>', methods=['DELETE'])
 def delete_subject(subject_id):
+    """Delete a subject.
+    
+    Args:
+        subject_id (int): The ID of the subject to delete.
+    
+    Returns:
+        JSON: Success message.
+        Format: {'message': str}
+        
+    Raises:
+        404: If subject is not found.
+        400: If deletion fails.
+    """
     subject = Subject.query.get_or_404(subject_id)
     
     try:
@@ -85,6 +150,15 @@ def delete_subject(subject_id):
 
 @api.route('/chapters', methods=['GET'])
 def get_chapters():
+    """Get all chapters or chapters for a specific subject.
+    
+    Query Parameters:
+        subject_id (int, optional): Filter chapters by subject ID.
+    
+    Returns:
+        JSON: List of chapters with their details.
+        Format: [{'id': int, 'subject_id': int, 'name': str, 'description': str}, ...]
+    """
     subject_id = request.args.get('subject_id', type=int)
     
     if subject_id:
@@ -104,6 +178,18 @@ def get_chapters():
 
 @api.route('/chapters/<int:chapter_id>', methods=['GET'])
 def get_chapter(chapter_id):
+    """Get a specific chapter by ID.
+    
+    Args:
+        chapter_id (int): The ID of the chapter to retrieve.
+    
+    Returns:
+        JSON: Chapter details.
+        Format: {'id': int, 'subject_id': int, 'name': str, 'description': str}
+        
+    Raises:
+        404: If chapter is not found.
+    """
     chapter = Chapter.query.get_or_404(chapter_id)
     return jsonify({
         'id': chapter.id,
@@ -114,6 +200,23 @@ def get_chapter(chapter_id):
 
 @api.route('/chapters', methods=['POST'])
 def create_chapter():
+    """Create a new chapter.
+    
+    Request Body:
+        {
+            'name': str (required),
+            'subject_id': int (required),
+            'description': str (optional)
+        }
+    
+    Returns:
+        JSON: The created chapter's details.
+        Format: {'id': int, 'subject_id': int, 'name': str, 'description': str}
+        
+    Raises:
+        400: If required fields are missing or validation fails.
+        404: If subject_id does not exist.
+    """
     data = request.get_json()
     
     if not data or 'name' not in data or 'subject_id' not in data:
@@ -145,6 +248,26 @@ def create_chapter():
 
 @api.route('/chapters/<int:chapter_id>', methods=['PUT'])
 def update_chapter(chapter_id):
+    """Update an existing chapter.
+    
+    Args:
+        chapter_id (int): The ID of the chapter to update.
+    
+    Request Body:
+        {
+            'name': str (optional),
+            'description': str (optional),
+            'subject_id': int (optional)
+        }
+    
+    Returns:
+        JSON: The updated chapter's details.
+        Format: {'id': int, 'subject_id': int, 'name': str, 'description': str}
+        
+    Raises:
+        404: If chapter is not found or if new subject_id does not exist.
+        400: If validation errors occur.
+    """
     chapter = Chapter.query.get_or_404(chapter_id)
     data = request.get_json()
     
@@ -172,6 +295,19 @@ def update_chapter(chapter_id):
 
 @api.route('/chapters/<int:chapter_id>', methods=['DELETE'])
 def delete_chapter(chapter_id):
+    """Delete a chapter.
+    
+    Args:
+        chapter_id (int): The ID of the chapter to delete.
+    
+    Returns:
+        JSON: Success message.
+        Format: {'message': str}
+        
+    Raises:
+        404: If chapter is not found.
+        400: If deletion fails.
+    """
     chapter = Chapter.query.get_or_404(chapter_id)
     
     try:
@@ -184,6 +320,22 @@ def delete_chapter(chapter_id):
 
 @api.route('/quizzes', methods=['GET'])
 def get_quizzes():
+    """Get all quizzes or quizzes for a specific chapter.
+    
+    Query Parameters:
+        chapter_id (int, optional): Filter quizzes by chapter ID.
+    
+    Returns:
+        JSON: List of quizzes with their details.
+        Format: [{
+            'id': int,
+            'chapter_id': int,
+            'date_of_quiz': str (ISO format),
+            'start_time': str (ISO format),
+            'end_time': str (ISO format),
+            'time_duration': str
+        }, ...]
+    """
     chapter_id = request.args.get('chapter_id', type=int)
     
     if chapter_id:
@@ -205,6 +357,34 @@ def get_quizzes():
 
 @api.route('/quizzes/<int:quiz_id>', methods=['GET'])
 def get_quiz(quiz_id):
+    """Get a specific quiz by ID, including its questions.
+    
+    Args:
+        quiz_id (int): The ID of the quiz to retrieve.
+    
+    Returns:
+        JSON: Quiz details including all questions.
+        Format: {
+            'id': int,
+            'chapter_id': int,
+            'date_of_quiz': str (ISO format),
+            'start_time': str (ISO format),
+            'end_time': str (ISO format),
+            'time_duration': str,
+            'questions': [{
+                'id': int,
+                'question_statement': str,
+                'option1': str,
+                'option2': str,
+                'option3': str,
+                'option4': str,
+                'correct_option': int
+            }, ...]
+        }
+        
+    Raises:
+        404: If quiz is not found.
+    """
     quiz = Quiz.query.get_or_404(quiz_id)
     
     questions = []
@@ -231,6 +411,40 @@ def get_quiz(quiz_id):
 
 @api.route('/quizzes', methods=['POST'])
 def create_quiz():
+    """Create a new quiz with optional questions.
+    
+    Request Body:
+        {
+            'chapter_id': int (required),
+            'date_of_quiz': str (required, ISO format),
+            'start_time': str (required, format: HH:MM:SS),
+            'end_time': str (required, format: HH:MM:SS),
+            'time_duration': str (optional),
+            'questions': [{ # optional
+                'question_statement': str (required),
+                'option1': str (required),
+                'option2': str (required),
+                'option3': str (required),
+                'option4': str (required),
+                'correct_option': int (required)
+            }, ...]
+        }
+    
+    Returns:
+        JSON: The created quiz's details.
+        Format: {
+            'id': int,
+            'chapter_id': int,
+            'date_of_quiz': str (ISO format),
+            'start_time': str (ISO format),
+            'end_time': str (ISO format),
+            'time_duration': str
+        }
+        
+    Raises:
+        400: If required fields are missing or validation fails.
+        404: If chapter_id does not exist.
+    """
     data = request.get_json()
     
     if not data or 'chapter_id' not in data or 'date_of_quiz' not in data or 'start_time' not in data or 'end_time' not in data:
@@ -300,6 +514,35 @@ def create_quiz():
 
 @api.route('/quizzes/<int:quiz_id>', methods=['PUT'])
 def update_quiz(quiz_id):
+    """Update an existing quiz.
+    
+    Args:
+        quiz_id (int): The ID of the quiz to update.
+    
+    Request Body:
+        {
+            'chapter_id': int (optional),
+            'date_of_quiz': str (optional, ISO format),
+            'start_time': str (optional, format: HH:MM:SS),
+            'end_time': str (optional, format: HH:MM:SS),
+            'time_duration': str (optional)
+        }
+    
+    Returns:
+        JSON: The updated quiz's details.
+        Format: {
+            'id': int,
+            'chapter_id': int,
+            'date_of_quiz': str (ISO format),
+            'start_time': str (ISO format),
+            'end_time': str (ISO format),
+            'time_duration': str
+        }
+        
+    Raises:
+        404: If quiz is not found or if new chapter_id does not exist.
+        400: If validation errors occur.
+    """
     quiz = Quiz.query.get_or_404(quiz_id)
     data = request.get_json()
     
@@ -348,6 +591,19 @@ def update_quiz(quiz_id):
 
 @api.route('/quizzes/<int:quiz_id>', methods=['DELETE'])
 def delete_quiz(quiz_id):
+    """Delete a quiz.
+    
+    Args:
+        quiz_id (int): The ID of the quiz to delete.
+    
+    Returns:
+        JSON: Success message.
+        Format: {'message': str}
+        
+    Raises:
+        404: If quiz is not found.
+        400: If deletion fails.
+    """
     quiz = Quiz.query.get_or_404(quiz_id)
     
     try:
@@ -360,6 +616,23 @@ def delete_quiz(quiz_id):
 
 @api.route('/scores', methods=['GET'])
 def get_scores():
+    """Get all scores or filter by user_id and/or quiz_id.
+    
+    Query Parameters:
+        user_id (int, optional): Filter scores by user ID.
+        quiz_id (int, optional): Filter scores by quiz ID.
+    
+    Returns:
+        JSON: List of scores with calculated percentages.
+        Format: [{
+            'id': int,
+            'user_id': int,
+            'quiz_id': int,
+            'total_score': float,
+            'max_score': float,
+            'percentage': float
+        }, ...]
+    """
     user_id = request.args.get('user_id', type=int)
     quiz_id = request.args.get('quiz_id', type=int)
     
@@ -388,6 +661,25 @@ def get_scores():
 
 @api.route('/scores/<int:score_id>', methods=['GET'])
 def get_score(score_id):
+    """Get a specific score by ID.
+    
+    Args:
+        score_id (int): The ID of the score to retrieve.
+    
+    Returns:
+        JSON: Score details with calculated percentage.
+        Format: {
+            'id': int,
+            'user_id': int,
+            'quiz_id': int,
+            'total_score': float,
+            'max_score': float,
+            'percentage': float
+        }
+        
+    Raises:
+        404: If score is not found.
+    """
     score = Score.query.get_or_404(score_id)
     
     return jsonify({
@@ -401,6 +693,31 @@ def get_score(score_id):
 
 @api.route('/scores', methods=['POST'])
 def create_score():
+    """Create a new score entry.
+    
+    Request Body:
+        {
+            'user_id': int (required),
+            'quiz_id': int (required),
+            'total_score': float (required),
+            'max_score': float (required)
+        }
+    
+    Returns:
+        JSON: The created score details with calculated percentage.
+        Format: {
+            'id': int,
+            'user_id': int,
+            'quiz_id': int,
+            'total_score': float,
+            'max_score': float,
+            'percentage': float
+        }
+        
+    Raises:
+        400: If required fields are missing or validation fails.
+        404: If user_id or quiz_id does not exist.
+    """
     data = request.get_json()
     
     if not data or 'user_id' not in data or 'quiz_id' not in data or 'total_score' not in data or 'max_score' not in data:
@@ -439,6 +756,32 @@ def create_score():
 
 @api.route('/scores/<int:score_id>', methods=['PUT'])
 def update_score(score_id):
+    """Update an existing score.
+    
+    Args:
+        score_id (int): The ID of the score to update.
+    
+    Request Body:
+        {
+            'total_score': float (optional),
+            'max_score': float (optional)
+        }
+    
+    Returns:
+        JSON: The updated score details with calculated percentage.
+        Format: {
+            'id': int,
+            'user_id': int,
+            'quiz_id': int,
+            'total_score': float,
+            'max_score': float,
+            'percentage': float
+        }
+        
+    Raises:
+        404: If score is not found.
+        400: If validation errors occur.
+    """
     score = Score.query.get_or_404(score_id)
     data = request.get_json()
     
@@ -464,6 +807,19 @@ def update_score(score_id):
 
 @api.route('/scores/<int:score_id>', methods=['DELETE'])
 def delete_score(score_id):
+    """Delete a score.
+    
+    Args:
+        score_id (int): The ID of the score to delete.
+    
+    Returns:
+        JSON: Success message.
+        Format: {'message': str}
+        
+    Raises:
+        404: If score is not found.
+        400: If deletion fails.
+    """
     score = Score.query.get_or_404(score_id)
     
     try:

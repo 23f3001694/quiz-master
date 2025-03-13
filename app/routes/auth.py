@@ -7,10 +7,30 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/')
 def index():
+    """Redirect to the login page.
+    
+    Returns:
+        Response: Redirect response to the login page.
+    """
     return redirect(url_for('auth.login'))
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    """Handle user authentication.
+    
+    GET: Display the login form.
+    POST: Process the login form submission.
+    
+    Form Parameters:
+        username (str): The user's username
+        password (str): The user's password
+        user_type (str): Type of user ('admin' or 'user')
+    
+    Returns:
+        GET: Rendered login template
+        POST: Redirect to appropriate dashboard on success,
+             or rendered login template with error message on failure
+    """
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -37,6 +57,24 @@ def login():
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
+    """Handle user registration.
+    
+    GET: Display the registration form.
+    POST: Process the registration form submission.
+    
+    Form Parameters:
+        username (str): Desired username
+        email (str): User's email address
+        password (str): User's password
+        full_name (str): User's full name
+        qualification (str): User's qualification
+        dob (str): Date of birth in YYYY-MM-DD format
+    
+    Returns:
+        GET: Rendered registration template
+        POST: Redirect to login page on successful registration,
+             or rendered registration template with error message on failure
+    """
     if request.method == 'POST':
         try:
             username = request.form['username']
@@ -88,5 +126,12 @@ def register():
 
 @auth.route('/logout')
 def logout():
+    """Handle user logout.
+    
+    Clears the user's session and redirects to the login page.
+    
+    Returns:
+        Response: Redirect response to the login page.
+    """
     session.clear()
     return redirect(url_for('auth.login')) 
