@@ -539,10 +539,6 @@ def delete_user(id):
     Returns:
         redirect: Redirects to user management page with success/error message
     """
-    if id == session.get('user_id'):
-        flash('You cannot delete your own account!', 'danger')
-        return redirect(url_for('admin.manage_users'))
-        
     user = User.query.get_or_404(id)
     try:
         db.session.delete(user)

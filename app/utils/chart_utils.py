@@ -121,9 +121,18 @@ def generate_admin_user_stats(users):
     """Generate charts for admin user statistics"""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
     
+    if not users:
+        # Handle empty users case
+        for ax in [ax1, ax2]:
+            ax.text(0.5, 0.5, 'No user data available', 
+                   horizontalalignment='center', verticalalignment='center',
+                   transform=ax.transAxes)
+        plt.tight_layout()
+        return get_base64_chart(fig)
+    
     quiz_counts = [len(user.scores) for user in users]
     
-    ax1.hist(quiz_counts, bins=max(10, max(quiz_counts)//5), edgecolor='black')
+    ax1.hist(quiz_counts, bins=max(10, max(quiz_counts) if quiz_counts else 1), edgecolor='black')
     ax1.set_title('Distribution of User Activity')
     ax1.set_xlabel('Number of Quizzes Taken')
     ax1.set_ylabel('Number of Users')
@@ -141,6 +150,10 @@ def generate_admin_user_stats(users):
         ax2.set_xlabel('Average Score (%)')
         ax2.set_ylabel('Number of Users')
         ax2.grid(True)
+    else:
+        ax2.text(0.5, 0.5, 'No performance data available', 
+                horizontalalignment='center', verticalalignment='center',
+                transform=ax2.transAxes)
     
     plt.tight_layout()
     return get_base64_chart(fig) 

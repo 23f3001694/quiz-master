@@ -27,7 +27,7 @@ class User(db.Model):
     full_name = db.Column(db.String(100))
     qualification = db.Column(db.String(100))
     dob = db.Column(db.Date)
-    scores = db.relationship('Score', backref='user', lazy=True)
+    scores = db.relationship('Score', backref='user', lazy=True, cascade='all, delete-orphan')
 
 # Admin model
 class Admin(db.Model):
